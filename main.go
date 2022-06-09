@@ -1,5 +1,9 @@
 package main
 
-func main() {
+import (
+	"visitor-management-system/cmd"
+)
 
+func main() {
+	cmd.Execute()
 }
