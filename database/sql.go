@@ -2,9 +2,9 @@ package database
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"visitor-management-system/model"
 )
 
 var db *gorm.DB
@@ -22,8 +22,13 @@ func Connect(database_name string) {
 	db = database
 }
 
-func GetDB(db_name string) *gorm.DB {
-	Connect(db_name)
-
+func Migration() {
+	db.AutoMigrate(&model.Subscriber{})
+}
+func GetDB() *gorm.DB {
+	if db == nil {
+		Connect("mytestdb")
+	}
+	Migration()
 	return db
 }
