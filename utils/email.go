@@ -7,7 +7,7 @@ import (
 	"visitor-management-system/model"
 )
 
-func SendSubscriptionEmail(user *model.Subscriber) {
+func SendSubscriptionEmail(user *model.Subscriber) error {
 	to := []string{user.Email}
 
 	address := config.GetConfig().SmtpHost + ":" + config.GetConfig().SmtpPort
@@ -26,9 +26,8 @@ func SendSubscriptionEmail(user *model.Subscriber) {
 	fmt.Println(auth)
 	// send mail
 	err := smtp.SendMail(address, auth, config.GetConfig().Email, to, []byte(message))
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+
 	fmt.Println("email processed")
+	return err
 
 }
