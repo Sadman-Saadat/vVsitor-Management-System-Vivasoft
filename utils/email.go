@@ -14,7 +14,8 @@ func SendSubscriptionEmail(user *model.Subscriber) error {
 	fmt.Println(config.GetConfig().Username)
 	//build msg
 	subject := "Welcome to VMS"
-	body := fmt.Sprintf("Your %s subscription is activated", user.Subscription_type)
+	body := fmt.Sprintf("dear %s ,\n", user.Name)
+	body += fmt.Sprintf("Your %s subscription is activated", user.Subscription_type)
 
 	message := fmt.Sprintf("From: %s\r\n", config.GetConfig().Email)
 	message += fmt.Sprintf("To: %s\r\n", to)

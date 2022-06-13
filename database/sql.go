@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"visitor-management-system/config"
 	"visitor-management-system/model"
 )
 
 var db *gorm.DB
 
-func Connect(database_name string) {
-	dns := fmt.Sprintf("root:quddus1916@tcp(127.0.0.1:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local", database_name)
+func Connect() {
+	dns := fmt.Sprintf("%s/%s?charset=utf8mb4&parseTime=True&loc=Local", config.GetConfig().SqlUri, config.GetConfig().SqlDb)
 	database, err := gorm.Open("mysql", dns)
 
 	if err != nil {
@@ -27,7 +28,7 @@ func Migration() {
 }
 func GetDB() *gorm.DB {
 	if db == nil {
-		Connect("mytestdb")
+		Connect()
 	}
 
 	return db

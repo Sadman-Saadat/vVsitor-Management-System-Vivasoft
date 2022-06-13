@@ -7,6 +7,8 @@ import (
 
 type Config struct {
 	Port         string `mapstructure:"PORT"`
+	SqlUri       string `mapstructure:"SQL_URI"`
+	SqlDb        string `mapstructure:"SQL_DB_NAME"`
 	Username     string `mapstructure:"USER_NAME"`
 	Email        string `mapstructure:"EMAIL"`
 	SmtpHost     string `mapstructure:"SMTP_HOST"`
