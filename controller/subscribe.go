@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"visitor-management-system/utils"
 	//"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -22,14 +23,15 @@ func Subscribe(c echo.Context) error {
 	new_subscriber.Subscription_start = time.Now().Local().Format("2006-01-02 3:4:5 pm")
 	new_subscriber.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720)).Format("2006-01-02 3:4:5 pm")
 
-	validationerr := validate.Struct(new_subscriber)
-	if validationerr != nil {
+	if validationerr := validate.Struct(new_subscriber); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
 
 	if err := repository.CreateSub(new_subscriber); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
+	utils.SendSubscriptionEmail(new_subscriber)
 
 	return c.JSON(http.StatusCreated, consts.Subscribed)
 }
