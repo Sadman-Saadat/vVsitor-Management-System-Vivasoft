@@ -1,18 +1,15 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"time"
 )
 
 type Subscriber struct {
-	gorm.Model
 	Id                 int    `gorm:"primary_key;AUTO_INCREMENT"`
-	Name               string `form:"name"`
-	Email              string `form:"email"`
-	Address            string `form:"address"`
-	Subscription_type  string `form:"subscription_type"`
-	Subscription_start time.Time
-	Subscription_end   time.Time
+	Name               string `json:"name" validate:"required,min=2,max=30"`
+	Email              string `json:"email" validate:"required,email"`
+	Address            string `json:"address"`
+	Subscription_type  string `json:"subscription_type" validate:"required,eq=general|eq=silver|eq=premium"`
+	Subscription_start string
+	Subscription_end   string
 }

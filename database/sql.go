@@ -29,6 +29,6 @@ func GetDB() *gorm.DB {
 	if db == nil {
 		Connect("mytestdb")
 	}
-	Migration()
+
 	return db
 }

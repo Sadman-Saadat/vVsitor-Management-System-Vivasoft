@@ -9,7 +9,7 @@ import (
 
 var db = database.GetDB()
 
-func CreateSub(subscriber *model.Subscription) error {
+func CreateSub(subscriber *model.Subscriber) error {
 
 	err := db.Create(&subscriber).Error
 	return err
