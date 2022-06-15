@@ -6,5 +6,7 @@ import (
 )
 
 func Subcription(e *echo.Echo) {
-	e.GET("/subscribe", controller.Subscribe)
+	sub := e.Group("/subscriber")
+	sub.POST("/create", controller.CreateSubscribe)
+	sub.GET("/get-all", controller.GetAllSubscriber)
 }

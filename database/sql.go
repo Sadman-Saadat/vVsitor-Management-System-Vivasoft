@@ -25,6 +25,8 @@ func Connect() {
 
 func Migration() {
 	db.AutoMigrate(&model.Subscriber{})
+	//db.AutoMigrate(&model.TrackVisitor{})
+	//db.AutoMigrate(&model.Visitor{})
 }
 func GetDB() *gorm.DB {
 	if db == nil {

@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"visitor-management-system/utils"
-	//"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -10,11 +8,12 @@ import (
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
+	"visitor-management-system/utils"
 )
 
 var validate = validator.New()
 
-func Subscribe(c echo.Context) error {
+func CreateSubscribe(c echo.Context) error {
 	var new_subscriber = new(model.Subscriber)
 	//bind
 	if err := c.Bind(new_subscriber); err != nil {
@@ -27,14 +26,30 @@ func Subscribe(c echo.Context) error {
 	if validationerr := validate.Struct(new_subscriber); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
+	//randrom password generator
+
+	password, err := utils.GenerateRandomPassword()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	new_subscriber.Password = password
 	//create subscriber
 	if err := repository.CreateSub(new_subscriber); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	// confirmation mail
+	//confirmation mail
 	if err := utils.SendSubscriptionEmail(new_subscriber); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, consts.Subscribed)
+	return c.JSON(http.StatusCreated, new_subscriber)
+}
+
+func GetAllSubscriber(c echo.Context) error {
+	all_subscriber, err := repository.GetAllSubscriber()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, all_subscriber)
 }

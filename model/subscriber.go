@@ -10,6 +10,7 @@ type Subscriber struct {
 	Email              string `json:"email" validate:"required,email"`
 	Address            string `json:"address"`
 	Subscription_type  string `json:"subscription_type" validate:"required,eq=general|eq=silver|eq=premium"`
+	Password           string
 	Subscription_start string
 	Subscription_end   string
 }

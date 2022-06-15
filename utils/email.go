@@ -15,7 +15,10 @@ func SendSubscriptionEmail(user *model.Subscriber) error {
 	//build msg
 	subject := "Welcome to VMS"
 	body := fmt.Sprintf("dear %s ,\n", user.Name)
-	body += fmt.Sprintf("Your %s subscription is activated", user.Subscription_type)
+	body += fmt.Sprintf("Your %s subscription is activated. \n", user.Subscription_type)
+	body += fmt.Sprintf("Your credentials for login are given below: \n")
+	body += fmt.Sprintf("Username: %s \n", user.Email)
+	body += fmt.Sprintf("Password: %s \n", user.Password)
 
 	message := fmt.Sprintf("From: %s\r\n", config.GetConfig().Email)
 	message += fmt.Sprintf("To: %s\r\n", to)
