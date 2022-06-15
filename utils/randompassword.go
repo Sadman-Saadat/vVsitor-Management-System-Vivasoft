@@ -5,8 +5,6 @@ import (
 )
 
 func GenerateRandomPassword() (string, error) {
-	res, err := password.Generate(64, 10, 10, false, false)
-
+	res, err := password.Generate(9, 4, 0, false, false)
 	return res, err
-
 }

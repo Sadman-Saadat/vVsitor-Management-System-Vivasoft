@@ -8,5 +8,6 @@ import (
 func Subcription(e *echo.Echo) {
 	sub := e.Group("/subscriber")
 	sub.POST("/create", controller.CreateSubscribe)
+	//	sub.PATCH("/change-password")
 	sub.GET("/get-all", controller.GetAllSubscriber)
 }
