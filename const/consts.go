@@ -1,4 +1,6 @@
 package consts
 
-var BadRequest = "given data can't be processed"
-var Subscribed = "Subscribed successfully"
+var BadRequest = "data can't be processed"
+var Subscribed = "Subscribed Successfull"
+var Loggedin = "Login Successfull"
+var UnAuthorized = "not authorized"

@@ -32,12 +32,16 @@ func CreateSubscribe(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	new_subscriber.Password = password
+	new_subscriber.Password, err = utils.Encrypt(password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	//create subscriber
 	if err := repository.CreateSub(new_subscriber); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	//confirmation mail
+	new_subscriber.Password = password
 	if err := utils.SendSubscriptionEmail(new_subscriber); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -52,4 +56,8 @@ func GetAllSubscriber(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, all_subscriber)
+}
+
+func ChangePassword(c echo.Context) error {
+	return c.JSON(http.StatusOK, "changed successfully")
 }

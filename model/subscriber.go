@@ -13,6 +13,6 @@ type Subscriber struct {
 	Password           string
 	Subscription_start string
 	Subscription_end   string
-	// Token              string
-	// RefreshToken       string
+	Token              string
+	RefreshToken       string
 }

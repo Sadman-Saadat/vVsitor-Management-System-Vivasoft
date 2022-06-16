@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	Port         string `mapstructure:"PORT"`
+	SecretKey    string `mapstructure:"SECRETKEY"`
 	SqlUri       string `mapstructure:"SQL_URI"`
 	SqlDb        string `mapstructure:"SQL_DB_NAME"`
 	Username     string `mapstructure:"USER_NAME"`
@@ -16,7 +17,7 @@ type Config struct {
 	SmtpPassword string `mapstructure:"SMTP_PASSWORD"`
 }
 
-func InitConfig() (config Config, err error) {
+func init_config() (config Config, err error) {
 	viper.AddConfigPath(".")
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
@@ -36,7 +37,7 @@ func InitConfig() (config Config, err error) {
 }
 
 func GetConfig() Config {
-	config, err := InitConfig()
+	config, err := init_config()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
