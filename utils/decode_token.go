@@ -1,23 +1,21 @@
 package utils
 
 import (
-	"fmt"
+	//"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"visitor-management-system/config"
 	"visitor-management-system/types"
 	//"time"
 )
 
-func DecodeToken(usertoken string) *types.SignedAdminDetails {
+func DecodeToken(usertoken string) (*types.SignedAdminDetails, error) {
 	//var claims *types.SignedDetails
 	var claims = &types.SignedAdminDetails{}
-	token, err := jwt.ParseWithClaims(usertoken, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(usertoken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.GetConfig().SecretKey), nil
 	})
 	// ... error handling
-	if err != nil {
-		fmt.Println(token)
-	}
+
 	// do something with decoded claims
-	return claims
+	return claims, err
 }

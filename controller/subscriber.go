@@ -4,10 +4,12 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strings"
 	"time"
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
+	"visitor-management-system/types"
 	"visitor-management-system/utils"
 )
 
@@ -59,5 +61,33 @@ func GetAllSubscriber(c echo.Context) error {
 }
 
 func ChangePassword(c echo.Context) error {
-	return c.JSON(http.StatusOK, "changed successfully")
+	var password = new(types.Password)
+
+	if err := c.Bind(password); err != nil {
+		return c.JSON(http.StatusBadRequest, consts.BadRequest)
+	}
+
+	if validationerr := validate.Struct(password); validationerr != nil {
+		return c.JSON(http.StatusBadRequest, validationerr.Error())
+	}
+	//token validation
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	subscriber, err := repository.GetSubscriberByEmail(claims.Email)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, consts.UnAuthorized)
+	}
+	//subscriber validation and update password
+	if subscriber.Id == claims.Id && password.Password == password.ConfirmPassword {
+		subscriber.Password, err = utils.Encrypt(password.ConfirmPassword)
+		if err := repository.UpdateSubscriber(subscriber); err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+	}
+	return c.JSON(http.StatusOK, subscriber)
 }

@@ -5,3 +5,8 @@ type User struct {
 	Password string `json:"password" validate:"required"`
 	Type     string `json:"user_type" validate:"required,eq=Admin|eq=Official"`
 }
+
+type Password struct {
+	Password        string `json:"password" validate:"required"`
+	ConfirmPassword string `json:"confirm_password" validate:"required"`
+}
