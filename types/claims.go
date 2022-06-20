@@ -9,3 +9,10 @@ type SignedAdminDetails struct {
 	Email string
 	jwt.StandardClaims
 }
+
+type SignedOfficialUserDetails struct {
+	Id           int
+	Email        string
+	SubscriberId int
+	jwt.StandardClaims
+}

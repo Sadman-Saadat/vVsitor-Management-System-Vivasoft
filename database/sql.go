@@ -25,6 +25,7 @@ func Connect() {
 
 func Migration() {
 	db.AutoMigrate(&model.Subscriber{})
+	db.AutoMigrate(&model.OfficialUser{})
 	//db.AutoMigrate(&model.TrackVisitor{})
 	//db.AutoMigrate(&model.Visitor{})
 }

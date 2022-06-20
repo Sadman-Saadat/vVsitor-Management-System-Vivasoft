@@ -38,8 +38,9 @@ func Execute() {
 	}
 	e := echo.New()
 	config := config.GetConfig()
-	routes.Subcription(e)
+	routes.Subscriber(e)
 	routes.Authenticate(e)
+	routes.OfficialUser(e)
 	e.Start(":" + config.Port)
 }
 

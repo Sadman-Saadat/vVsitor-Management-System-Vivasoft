@@ -6,7 +6,5 @@ import (
 )
 
 func Authenticate(e *echo.Echo) {
-
 	e.POST("/login", controller.Login)
-
 }
