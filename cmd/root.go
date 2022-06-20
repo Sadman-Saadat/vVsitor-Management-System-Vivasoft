@@ -41,6 +41,7 @@ func Execute() {
 	routes.Subscriber(e)
 	routes.Authenticate(e)
 	routes.OfficialUser(e)
+	routes.Visitor(e)
 	e.Start(":" + config.Port)
 }
 
