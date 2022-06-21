@@ -16,7 +16,7 @@ func CreateSub(subscriber *model.Subscriber) error {
 }
 
 func GetAllSubscriber() (all_sub []model.Subscriber, err error) {
-	err = db.Find(&all_sub).Error
+	err = db.Preload("OfficialUser").Find(&all_sub).Error
 	return
 }
 

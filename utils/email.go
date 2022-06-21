@@ -11,7 +11,7 @@ func SendSubscriptionEmail(user *model.Subscriber) error {
 	to := []string{user.Email}
 
 	address := config.GetConfig().SmtpHost + ":" + config.GetConfig().SmtpPort
-	fmt.Println(config.GetConfig().Username)
+	//fmt.Println(config.GetConfig().Username)
 	//build msg
 	subject := "Welcome to VMS"
 	body := fmt.Sprintf("dear %s ,\n", user.Name)
@@ -27,7 +27,7 @@ func SendSubscriptionEmail(user *model.Subscriber) error {
 
 	//fmt.Println(message)
 	auth := smtp.PlainAuth("", config.GetConfig().Username, config.GetConfig().SmtpPassword, config.GetConfig().SmtpHost)
-	fmt.Println(auth)
+	//fmt.Println(auth)
 	// send mail
 	err := smtp.SendMail(address, auth, config.GetConfig().Email, to, []byte(message))
 

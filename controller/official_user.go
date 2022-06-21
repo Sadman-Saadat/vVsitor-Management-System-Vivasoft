@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -29,7 +30,7 @@ func CreateOfficialUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-
+	fmt.Println(claims)
 	new_official_user.SubscriberId = claims.Id
 	new_official_user.Password, err = utils.GenerateRandomPassword()
 	if err != nil {

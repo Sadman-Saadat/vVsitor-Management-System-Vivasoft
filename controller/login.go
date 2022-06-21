@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	//"time"
-	//"fmt"
+	"fmt"
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
@@ -32,6 +32,7 @@ func Login(c echo.Context) (err error) {
 		if admin.Email == "" || err != nil {
 			return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 		}
+		fmt.Println(admin)
 		if err := utils.VerifyPassword(user.Password, admin.Password); err != nil {
 			return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 		}
@@ -67,5 +68,5 @@ func Login(c echo.Context) (err error) {
 
 	}
 
-	return c.JSON(http.StatusOK, official_user)
+	return c.JSON(http.StatusOK, "successful login")
 }

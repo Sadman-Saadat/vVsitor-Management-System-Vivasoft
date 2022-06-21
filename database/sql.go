@@ -29,6 +29,7 @@ func Migration() {
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
+	db.Model(&model.OfficialUser{}).AddForeignKey("subscriber_id", "subscribers(id)", "RESTRICT", "RESTRICT")
 
 }
 func GetDB() *gorm.DB {

@@ -15,4 +15,5 @@ type Subscriber struct {
 	Subscription_end   string
 	Token              string
 	RefreshToken       string
+	OfficialUser       []OfficialUser `gorm:"ForeignKey:SubscriberId"`
 }
