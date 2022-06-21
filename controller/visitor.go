@@ -15,16 +15,54 @@ import (
 
 func CreateVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
-	c.Bind(visitor)
-	if err := repository.CreateVisitor(visitor); err != nil {
-		return c.JSON(http.StatusOK, err.Error())
+	if err := c.Bind(visitor); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, visitor)
+	if err := repository.CreateVisitor(visitor); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, visitor.Id)
 }
 func GetAllVisitor(c echo.Context) error {
 	// var visitor = new(model.Visitor)
 	// c.Bind(visitor)
 	res, err := repository.GetAllVisitor()
+	if err != nil {
+		return c.JSON(http.StatusOK, err.Error())
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func GetVisitorDetails(c echo.Context) error {
+	var visitor = new(model.Visitor)
+	if err := c.Bind(visitor); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	res, err := repository.GetVisitorDetails(visitor)
+	if err != nil {
+		return c.JSON(http.StatusOK, err.Error())
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func UpdateVisitor(c echo.Context) error {
+	var visitor = new(model.Visitor)
+	if err := c.Bind(visitor); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	err := repository.UpdateVisitor(visitor)
+	if err != nil {
+		return c.JSON(http.StatusOK, err.Error())
+	}
+	return c.JSON(http.StatusOK, "update successful")
+}
+
+func GetVisitor(c echo.Context) error {
+	var visitor = new(model.Visitor)
+	if err := c.Bind(visitor); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	res, err := repository.GetVisitor(visitor)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}

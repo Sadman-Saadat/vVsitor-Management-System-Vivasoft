@@ -14,7 +14,21 @@ func CreateVisitor(visitor *model.Visitor) error {
 }
 
 func GetAllVisitor() (visitor []*model.Visitor, err error) {
-
 	err = db.Preload("TrackVisitors").Find(&visitor).Error
 	return
+}
+
+func GetVisitor(visitor *model.Visitor) (*model.Visitor, error) {
+	err := db.Find(&visitor).Error
+	return visitor, err
+}
+
+func GetVisitorDetails(visitor *model.Visitor) (*model.Visitor, error) {
+	err := db.Preload("TrackVisitors").Find(&visitor).Error
+	return visitor, err
+}
+
+func UpdateVisitor(visitor *model.Visitor) error {
+	err := db.Save(&visitor).Error
+	return err
 }
