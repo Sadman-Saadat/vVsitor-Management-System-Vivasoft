@@ -9,7 +9,5 @@ import (
 func Company(e *echo.Echo) {
 	sub := e.Group("/subscriber")
 	sub.POST("/registration", controller.Registration)
-	//sub.PATCH("/change-password", controller.ChangePassword, middleware.Authenticate)
-	//sub.GET("/get-all", controller.GetAllSubscriber)
-	//sub.POST("/create-user", controller.CreateOfficialUser, middleware.Authenticate)
+
 }

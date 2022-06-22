@@ -19,11 +19,13 @@ type Visitor struct {
 }
 
 type TrackVisitor struct {
-	Id       int    `gorm:"primary_key;AUTO_INCREMENT"`
-	VId      int    `json:"v_id" validate:"required,number"`
-	Purpose  string `json:"purpose" validate:"required,min=7,max=40"`
-	Token    string `json:"token"`
-	Date     string
-	CheckIn  string
-	CheckOut string
+	Id          int    `gorm:"primary_key;AUTO_INCREMENT"`
+	VId         int    `json:"v_id" validate:"required,number"`
+	Purpose     string `json:"purpose" validate:"required,min=7,max=40"`
+	HostName    string `json:"host_name" validate:"required,min=7,max=40"`
+	FloorNumber int    `json:"floor_number" validate:"required,number"`
+	Token       string `json:"token"`
+	Date        string
+	CheckIn     string
+	CheckOut    string
 }

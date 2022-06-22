@@ -39,7 +39,6 @@ func Execute() {
 	e := echo.New()
 	config := config.GetConfig()
 	routes.Company(e)
-	routes.Authenticate(e)
 	routes.User(e)
 	routes.Visitor(e)
 	e.Start(":" + config.Port)
