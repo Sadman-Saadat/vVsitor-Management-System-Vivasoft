@@ -13,9 +13,9 @@ func CreateUser(user *model.User) error {
 	return err
 }
 
-func GetAllOfficialUsers(id int) ([]model.User, error) {
+func GetAllUsers(id int) ([]model.User, error) {
 	var official_users []model.User
-	err := db.Where("subscriber_id = ?", id).Find(&official_users).Error
+	err := db.Where("company_id = ?", id).Find(&official_users).Error
 	return official_users, err
 }
 

@@ -97,7 +97,7 @@ func GetAllOfficialUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	res, err := repository.GetAllOfficialUsers(claims.Id)
+	res, err := repository.GetAllUsers(claims.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -109,9 +109,19 @@ func DeleteOfficialUser(c echo.Context) error {
 	if err := c.Bind(user); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
 	}
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	user.CompanyId = claims.CompanyId
 
-	if err := repository.DeleteOfficialUser(user); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+	if claims.UserType == "Admin" {
+		if err := repository.DeleteOfficialUser(user); err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
 	}
 
 	return c.JSON(http.StatusOK, "delete successful")
