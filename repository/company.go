@@ -27,7 +27,7 @@ func GetAllSubscriber() (all_company []model.Company, err error) {
 // 	return &admin, err
 // }
 
-func UpdateSubscriber(company *model.Company) error {
-	err := db.Save(&company).Error
+func UpdateUser(user *model.User) error {
+	err := db.Save(&user).Error
 	return err
 }

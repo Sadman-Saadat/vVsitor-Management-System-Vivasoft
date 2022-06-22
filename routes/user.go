@@ -11,7 +11,7 @@ func User(e *echo.Echo) {
 	sub1.POST("/login", controller.Login)
 
 	sub1.POST("/create", controller.CreateUser, middleware.Authenticate)
-	sub2 := e.Group("/official-user")
-	sub2.GET("/get-all", controller.GetAllOfficialUser, middleware.Authenticate)
-	sub2.DELETE("/", controller.DeleteOfficialUser, middleware.Authenticate)
+	sub1.PATCH("/change-password", controller.ChangePassword, middleware.Authenticate)
+	sub1.GET("/get-all", controller.GetAllOfficialUser, middleware.Authenticate)
+	sub1.DELETE("/", controller.DeleteOfficialUser, middleware.Authenticate)
 }
