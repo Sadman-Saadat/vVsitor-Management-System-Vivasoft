@@ -40,7 +40,7 @@ func Execute() {
 	config := config.GetConfig()
 	routes.Company(e)
 	routes.Authenticate(e)
-	routes.OfficialUser(e)
+	routes.User(e)
 	routes.Visitor(e)
 	e.Start(":" + config.Port)
 }

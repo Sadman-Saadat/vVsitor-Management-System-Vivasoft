@@ -8,9 +8,9 @@ import (
 	//"time"
 )
 
-func DecodeToken(usertoken string) (*types.SignedAdminDetails, error) {
+func DecodeToken(usertoken string) (*types.SignedUserDetails, error) {
 	//var claims *types.SignedDetails
-	var claims = &types.SignedAdminDetails{}
+	var claims = &types.SignedUserDetails{}
 	_, err := jwt.ParseWithClaims(usertoken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.GetConfig().SecretKey), nil
 	})

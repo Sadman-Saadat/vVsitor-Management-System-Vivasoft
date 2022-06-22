@@ -29,7 +29,7 @@ func UpdateOfficialUser(user *model.User) error {
 	return err
 }
 
-func GetOfficialUserByEmail(email string) (*model.User, error) {
+func GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
 
 	err := db.Where("email = ?", email).Find(&user).Error

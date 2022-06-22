@@ -8,7 +8,7 @@ import (
 )
 
 func VerifyToken(usertoken string) (bool, error) {
-	claims := &types.SignedAdminDetails{}
+	claims := &types.SignedUserDetails{}
 	flag := false
 	token, err := jwt.ParseWithClaims(usertoken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.GetConfig().SecretKey), nil

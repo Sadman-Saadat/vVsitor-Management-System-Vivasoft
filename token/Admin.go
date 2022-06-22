@@ -7,17 +7,19 @@ import (
 	"visitor-management-system/types"
 )
 
-func GenerateAdminTokens(email string, id int) (signed_token string, signed_refreshtoken string, err error) {
+func GenerateUserTokens(email string, id int, usertype string, company_id int) (signed_token string, signed_refreshtoken string, err error) {
 
-	claims := &types.SignedAdminDetails{
-		Email: email,
-		Id:    id,
+	claims := &types.SignedUserDetails{
+		Email:     email,
+		Id:        id,
+		UserType:  usertype,
+		CompanyId: company_id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
 		},
 	}
 
-	refreshclaims := &types.SignedAdminDetails{
+	refreshclaims := &types.SignedUserDetails{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
 		},

@@ -6,9 +6,11 @@ import (
 	"visitor-management-system/middleware"
 )
 
-func OfficialUser(e *echo.Echo) {
-	sub1 := e.Group("/subscriber")
-	sub1.POST("/create-user", controller.CreateOfficialUser, middleware.Authenticate)
+func User(e *echo.Echo) {
+	sub1 := e.Group("/user")
+	sub1.POST("/login", controller.Login)
+
+	sub1.POST("/create", controller.CreateUser, middleware.Authenticate)
 	sub2 := e.Group("/official-user")
 	sub2.GET("/get-all", controller.GetAllOfficialUser, middleware.Authenticate)
 	sub2.DELETE("/", controller.DeleteOfficialUser, middleware.Authenticate)
