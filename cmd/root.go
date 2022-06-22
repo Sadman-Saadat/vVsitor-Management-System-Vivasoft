@@ -38,7 +38,7 @@ func Execute() {
 	}
 	e := echo.New()
 	config := config.GetConfig()
-	routes.Subscriber(e)
+	routes.Company(e)
 	routes.Authenticate(e)
 	routes.OfficialUser(e)
 	routes.Visitor(e)

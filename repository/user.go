@@ -8,29 +8,29 @@ import (
 	"visitor-management-system/model"
 )
 
-func CreateOfficialUser(official_user *model.OfficialUser) error {
-	err := db.Create(&official_user).Error
+func CreateUser(user *model.User) error {
+	err := db.Create(&user).Error
 	return err
 }
 
-func GetAllOfficialUsers(id int) ([]model.OfficialUser, error) {
-	var official_users []model.OfficialUser
+func GetAllOfficialUsers(id int) ([]model.User, error) {
+	var official_users []model.User
 	err := db.Where("subscriber_id = ?", id).Find(&official_users).Error
 	return official_users, err
 }
 
-func DeleteOfficialUser(user *model.OfficialUser) error {
+func DeleteOfficialUser(user *model.User) error {
 	err := db.Delete(user).Error
 	return err
 }
 
-func UpdateOfficialUser(user *model.OfficialUser) error {
+func UpdateOfficialUser(user *model.User) error {
 	err := db.Save(&user).Error
 	return err
 }
 
-func GetOfficialUserByEmail(email string) (*model.OfficialUser, error) {
-	var user model.OfficialUser
+func GetOfficialUserByEmail(email string) (*model.User, error) {
+	var user model.User
 
 	err := db.Where("email = ?", email).Find(&user).Error
 	return &user, err

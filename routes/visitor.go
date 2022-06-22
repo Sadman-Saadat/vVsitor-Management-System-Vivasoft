@@ -13,5 +13,6 @@ func Visitor(e *echo.Echo) {
 	sub.GET("/get-by-id", controller.GetVisitorDetails, middleware.Authenticate)
 	sub.PATCH("/update", controller.UpdateVisitor, middleware.Authenticate)
 	sub.GET("/", controller.GetVisitor, middleware.Authenticate)
+	//	sub.GET("/log-info", controller.GetVisitorLog, middleware.Authenticate)
 
 }

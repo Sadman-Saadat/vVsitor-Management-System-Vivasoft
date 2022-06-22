@@ -24,12 +24,14 @@ func Connect() {
 }
 
 func Migration() {
-	db.AutoMigrate(&model.Subscriber{})
-	db.AutoMigrate(&model.OfficialUser{})
+	db.AutoMigrate(&model.Company{})
+	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Subscription{})
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
-	db.Model(&model.OfficialUser{}).AddForeignKey("subscriber_id", "subscribers(id)", "RESTRICT", "RESTRICT")
+
+	db.Model(&model.Subscription{}).AddForeignKey("company_id", "companies(id)", "RESTRICT", "RESTRICT")
 
 }
 func GetDB() *gorm.DB {

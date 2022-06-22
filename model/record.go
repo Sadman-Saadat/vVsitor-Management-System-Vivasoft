@@ -15,6 +15,9 @@ type Record struct {
 	VisitorImagePath      string
 	HostName              string
 	HostEmail             string
+	Token                 string
 	CompanyRepresentating string
-	TrackVisitors         []TrackVisitor `gorm:"ForeignKey:VId"`
+	Date                  string
+	CheckIn               string
+	checkOut              string
 }
