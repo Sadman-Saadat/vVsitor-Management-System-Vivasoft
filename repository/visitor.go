@@ -32,3 +32,20 @@ func UpdateVisitor(visitor *model.Visitor) error {
 	err := db.Save(&visitor).Error
 	return err
 }
+
+func Search(visitor *model.Visitor) (*model.Visitor, error) {
+	err := db.Where("phone = ?", visitor.Phone).Find(&visitor).Error
+	return visitor, err
+}
+
+func CheckIn(info *model.TrackVisitor) error {
+	err := db.Create(&info).Error
+	return err
+}
+
+func CountPresentVisitor() (int, error) {
+	var count int
+	var visitor []*model.Visitor
+	err := db.Where("status = ?", "Arrived").Or("status = ?", "WillArrive").Find(&visitor).Count(&count).Error
+	return count, err
+}

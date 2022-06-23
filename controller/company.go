@@ -23,8 +23,8 @@ func Registration(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// //current_time := time.Now().Local().Add(time.Hour * time.Duration(2)).Format("2006-01-02 3:4:5 pm")
-	company.Subscription.Subscription_start = time.Now().Local().Format("2006-01-02 3:4:5 pm")
-	company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720)).Format("2006-01-02 3:4:5 pm")
+	company.Subscription.Subscription_start = time.Now().Local()
+	company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
 	//validate info
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())

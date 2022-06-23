@@ -11,7 +11,8 @@ type Visitor struct {
 	Email                 string `json:"email" validate:"required,email"`
 	Phone                 string `json:"phone" validate:"required,number"`
 	Address               string `json:"address"`
-	Arrived               string `validate:"required,eq=Yes|eq=No|eq=left"`
+	CompanyId             int
+	Status                string `json:"status" validate:"required,eq=Arrived|eq=WillArrive|eq=Left"`
 	ImageName             string
 	ImagePath             string
 	CompanyRepresentating string         `json:"company_rep"`
@@ -19,12 +20,14 @@ type Visitor struct {
 }
 
 type TrackVisitor struct {
-	Id          int    `gorm:"primary_key;AUTO_INCREMENT"`
-	VId         int    `json:"v_id" validate:"required,number"`
+	Id          int `gorm:"primary_key;AUTO_INCREMENT"`
+	VId         int `json:"v_id" validate:"required,number"`
+	CompanyId   int
 	Purpose     string `json:"purpose" validate:"required,min=7,max=40"`
 	HostName    string `json:"host_name" validate:"required,min=7,max=40"`
 	FloorNumber int    `json:"floor_number" validate:"required,number"`
 	Token       string `json:"token"`
+	ImagePath   string
 	Date        string
 	CheckIn     string
 	CheckOut    string
