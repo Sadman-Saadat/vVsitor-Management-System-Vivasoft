@@ -146,14 +146,19 @@ func CheckIn(c echo.Context) error {
 	fl_num := c.FormValue("floor_number")
 	info.FloorNumber, _ = strconv.Atoi(fl_num)
 	info.Purpose = c.FormValue("purpose")
-	info.Token = c.FormValue("token")
-	info.HostName = c.FormValue("host_name")
+	info.LuggageToken = c.FormValue("luggage_token")
+	info.AppointedTo = c.FormValue("appointed_to")
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+
+	res, str, err := utils.ValidateSubscription(claims.CompanyId)
+	if res != true || err != nil {
+		return c.JSON(http.StatusOK, str)
 	}
 
 	info.CompanyId = claims.CompanyId
