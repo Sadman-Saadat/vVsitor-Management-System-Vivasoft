@@ -52,3 +52,11 @@ func CountPresentVisitor(id int) (int, error) {
 	err := db.Where("status = ? AND date=? AND company_id = ?", val, today, id).Find(&visitor).Count(&count).Error
 	return count, err
 }
+
+func GetTodaysVisitor(id int) ([]*model.Visitor, error) {
+	var visitor []*model.Visitor
+	val := "Arrived"
+	today := time.Now().Local().Format("2006-01-02")
+	err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.date = ? AND track_visitors.status = ?", today, val).Preload("TrackVisitors", "date = ?", today).Find(&visitor).Error
+	return visitor, err
+}

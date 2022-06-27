@@ -147,7 +147,6 @@ func CheckIn(c echo.Context) error {
 	info.Purpose = c.FormValue("purpose")
 	info.LuggageToken = c.FormValue("luggage_token")
 	info.AppointedTo = c.FormValue("appointed_to")
-	info.Status = "Arrived"
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -206,4 +205,22 @@ func CheckIn(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, info)
+}
+
+func GetTodaysVisitor(c echo.Context) error {
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	res, err := repository.GetTodaysVisitor(claims.CompanyId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func CheckOut(c echo.Context) error {
+	return c.JSON(http.StatusOK, "checked out")
 }
