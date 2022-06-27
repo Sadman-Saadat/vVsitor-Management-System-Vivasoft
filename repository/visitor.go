@@ -5,6 +5,7 @@ import (
 	//"github.com/jinzhu/gorm"
 	//_ "github.com/jinzhu/gorm/dialects/mysql"
 	//"visitor-management-system/database"
+	"time"
 	"visitor-management-system/model"
 )
 
@@ -43,9 +44,11 @@ func CheckIn(info *model.TrackVisitor) error {
 	return err
 }
 
-func CountPresentVisitor() (int, error) {
+func CountPresentVisitor(id int) (int, error) {
 	var count int
-	var visitor []*model.Visitor
-	err := db.Where("status = ?", "Arrived").Or("status = ?", "WillArrive").Find(&visitor).Count(&count).Error
+	today := time.Now().Local().Format("2006-01-02")
+	val := "Arrived"
+	var visitor []*model.TrackVisitor
+	err := db.Where("status = ? AND date=? AND company_id = ?", val, today, id).Find(&visitor).Count(&count).Error
 	return count, err
 }

@@ -106,3 +106,50 @@ func ChangePassword(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, user)
 }
+
+func ChangeSubscription(c echo.Context) error {
+	var subscription = new(model.Subscription)
+	if err := c.Bind(subscription); err != nil {
+		return c.JSON(http.StatusBadRequest, consts.BadRequest)
+	}
+	if validationerr := validate.Struct(subscription); validationerr != nil {
+		return c.JSON(http.StatusBadRequest, validationerr.Error())
+	}
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	subscription.CompanyId = claims.CompanyId
+
+	subscription.Subscription_start = time.Now().Local()
+	subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
+	if err := repository.ChangeSubscription(subscription); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, subscription)
+}
+
+func CancelSubscription(c echo.Context) error {
+	var subscription = new(model.Subscription)
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	subscription.CompanyId = claims.CompanyId
+	subscription.Subscription_type = "free"
+
+	subscription.Subscription_start = time.Now().Local()
+	subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
+	if err := repository.CancelSubscription(subscription); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, subscription)
+}

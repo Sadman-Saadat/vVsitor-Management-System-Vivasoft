@@ -10,6 +10,6 @@ type Company struct {
 	Address         string       `json:"address"`
 	SubscriberName  string       `json:"subscriber_name"`
 	SubscriberEmail string       `json:"subscriber_email" validate:"required,email"`
-	Subscription    Subscription `gorm:"ForeignKey:CompanyId"`
+	Subscription    Subscription `gorm:"ForeignKey:CompanyId,constraint:OnUpdate:CASCADE"`
 	User            []User       `gorm:"ForeignKey:CompanyId"`
 }

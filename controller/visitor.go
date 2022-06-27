@@ -27,7 +27,6 @@ func CreateVisitor(c echo.Context) error {
 	visitor.CompanyRepresentating = c.FormValue("company_rep")
 	visitor.Email = c.FormValue("email")
 	visitor.Phone = c.FormValue("phone")
-	visitor.Status = c.FormValue("status")
 
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -148,6 +147,7 @@ func CheckIn(c echo.Context) error {
 	info.Purpose = c.FormValue("purpose")
 	info.LuggageToken = c.FormValue("luggage_token")
 	info.AppointedTo = c.FormValue("appointed_to")
+	info.Status = "Arrived"
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")

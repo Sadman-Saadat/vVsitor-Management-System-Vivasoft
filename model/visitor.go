@@ -12,7 +12,6 @@ type Visitor struct {
 	Phone                 string `json:"phone" validate:"required,number"`
 	Address               string `json:"address"`
 	CompanyId             int
-	Status                string `json:"status" validate:"required,eq=Arrived|eq=WillArrive|eq=Left"`
 	ImageName             string
 	ImagePath             string
 	CompanyRepresentating string         `json:"company_rep"`
@@ -25,6 +24,7 @@ type TrackVisitor struct {
 	CompanyId    int
 	Purpose      string `json:"purpose" validate:"required,min=7,max=40"`
 	AppointedTo  string `json:"appointed_to" validate:"required,min=7,max=40"`
+	Status       string `json:"status" validate:"required,eq=Arrived|eq=WillArrive|eq=Left"`
 	FloorNumber  int    `json:"floor_number" validate:"required,number"`
 	LuggageToken string `json:"luggage_token"`
 	ImagePath    string

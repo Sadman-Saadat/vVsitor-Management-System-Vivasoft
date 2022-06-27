@@ -21,13 +21,19 @@ func ValidateSubscription(id int) (bool, string, error) {
 		return false, "your subscription is over", err
 	}
 
-	count, err := repository.CountPresentVisitor()
+	count, err := repository.CountPresentVisitor(id)
 	fmt.Println(count)
 	if err != nil {
 		return false, "", err
 	}
-	if res.Subscription_type == "silver" && count > 10 {
+	if res.Subscription_type == "silver" && count > 3 {
 		return false, consts.Upgrade, err
+	}
+	if res.Subscription_type == "free" && count > 10 {
+		return false, consts.Upgrade, err
+	}
+	if res.Subscription_type == "premium" {
+		return true, "", err
 	}
 
 	return true, "", err
