@@ -22,7 +22,6 @@ func SendEmail(user *model.User, password string) error {
 	message += fmt.Sprintf("Subject: %s\r\n", subject)
 	message += fmt.Sprintf("\r\n%s\r\n", body)
 
-	//fmt.Println(message)
 	auth := smtp.PlainAuth("", config.GetConfig().Username, config.GetConfig().SmtpPassword, config.GetConfig().SmtpHost)
 	err := smtp.SendMail(address, auth, config.GetConfig().Email, to, []byte(message))
 

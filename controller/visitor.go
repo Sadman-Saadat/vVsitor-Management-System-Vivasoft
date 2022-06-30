@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
-	// 	"visitor-management-system/types"
 	"visitor-management-system/utils"
 )
 
@@ -165,7 +163,13 @@ func GetVisitorDetails(c echo.Context) error {
 	if err := c.Bind(visitor); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	res, err := repository.GetVisitorDetails(visitor)
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	res, err := repository.GetVisitorDetails(visitor, claims.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
@@ -177,7 +181,13 @@ func UpdateVisitor(c echo.Context) error {
 	if err := c.Bind(visitor); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	err := repository.UpdateVisitor(visitor)
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	err = repository.UpdateVisitor(visitor, claims.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -223,7 +233,13 @@ func SearchVisitor(c echo.Context) error {
 	if err := c.Bind(visitor); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	res, err := repository.Search(visitor)
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+	res, err := repository.Search(visitor, claims.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
@@ -262,6 +278,7 @@ func CheckIn(c echo.Context) error {
 	info.Purpose = c.FormValue("purpose")
 	info.LuggageToken = c.FormValue("luggage_token")
 	info.AppointedTo = c.FormValue("appointed_to")
+	info.Status = "Arrived"
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -399,6 +416,7 @@ func CheckOut(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	track_res.CheckOut = time.Now().Local().Format("03:04:05 pm")
+	track_res.Status = "left"
 	if err := repository.CheckOut(res, track_res); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

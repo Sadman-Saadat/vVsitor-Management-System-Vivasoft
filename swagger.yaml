@@ -199,9 +199,6 @@ definitions:
     x-go-package: visitor-management-system/docs/open_api
   Subscription:
     properties:
-      Id:
-        format: int64
-        type: integer
       Subscription_end:
         format: date-time
         type: string

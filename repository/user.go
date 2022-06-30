@@ -1,10 +1,6 @@
 package repository
 
 import (
-	//"fmt"
-	//"github.com/jinzhu/gorm"
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
-	//"visitor-management-system/database"
 	"visitor-management-system/model"
 )
 
@@ -29,9 +25,9 @@ func UpdateOfficialUser(user *model.User) error {
 	return err
 }
 
-func GetUserByEmail(email string) (*model.User, error) {
+func GetUserByEmail(email string, id int) (*model.User, error) {
 	var user model.User
 
-	err := db.Where("email = ?", email).Find(&user).Error
+	err := db.Where("company_id = ? AND email = ?", id, email).Find(&user).Error
 	return &user, err
 }

@@ -1,12 +1,9 @@
 package controller
 
 import (
-	"fmt"
-	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
-	//	"time"
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
@@ -50,7 +47,7 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
 
-	model_user, err = repository.GetUserByEmail(user.Email)
+	model_user, err = repository.GetUserByEmail(user.Email, user.CompanyId)
 	if model_user.Email == "" || err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
@@ -97,7 +94,6 @@ func CreateUser(c echo.Context) error {
 	if err := c.Bind(user); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
 	}
-	user.UserType = "Official"
 
 	if validationerr := validate.Struct(user); validationerr != nil {
 		return c.JSON(http.StatusBadRequest, validationerr.Error())
@@ -108,9 +104,7 @@ func CreateUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	fmt.Println(claims)
 	user.CompanyId = claims.CompanyId
-	// //new_official_user.SubscriberId = claims.Id
 	password, err := utils.GenerateRandomPassword()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -130,7 +124,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, "user created successfullys")
 }
 
 // swagger:route GET /user/get-all USER AllUser
@@ -155,7 +149,7 @@ func CreateUser(c echo.Context) error {
 //          name: bearer
 //          in: header
 
-func GetAllOfficialUser(c echo.Context) error {
+func GetAllUser(c echo.Context) error {
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
@@ -255,7 +249,7 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	user, err := repository.GetUserByEmail(claims.Email)
+	user, err := repository.GetUserByEmail(claims.Email, claims.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, consts.UnAuthorized)
 	}

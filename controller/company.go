@@ -43,9 +43,15 @@ func Registration(c echo.Context) error {
 	if err := c.Bind(company); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	// //current_time := time.Now().Local().Add(time.Hour * time.Duration(2)).Format("2006-01-02 3:4:5 pm")
-	company.Subscription.Subscription_start = time.Now().Local()
-	company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
+	//free trial limit
+	if company.Subscription.Subscription_type == "free" {
+		company.Subscription.Subscription_start = time.Now().Local()
+		company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(240))
+	} else {
+		company.Subscription.Subscription_start = time.Now().Local()
+		company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
+
+	}
 	//validate info
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
@@ -54,7 +60,7 @@ func Registration(c echo.Context) error {
 	if err := repository.RegisterCompany(company); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	// //randrom password generator
+	//randrom password generator
 
 	password, err := utils.GenerateRandomPassword()
 	if err != nil {
@@ -134,9 +140,20 @@ func ChangeSubscription(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 	subscription.CompanyId = claims.CompanyId
-
+	if claims.UserType != "Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
 	subscription.Subscription_start = time.Now().Local()
 	subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
+	if subscription.Subscription_type == "free" {
+		res, err := repository.GetPreviousSubscription(claims.CompanyId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		if res.Subscription_type == "free" {
+			return c.JSON(http.StatusBadRequest, "you have already used free trial")
+		}
+	}
 	if err := repository.ChangeSubscription(subscription); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -176,8 +193,11 @@ func CancelSubscription(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 	subscription.CompanyId = claims.CompanyId
-	subscription.Subscription_type = "free"
+	subscription.Subscription_type = "cancel"
 
+	if claims.UserType != "Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
 	subscription.Subscription_start = time.Now().Local()
 	subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
 	if err := repository.CancelSubscription(subscription); err != nil {

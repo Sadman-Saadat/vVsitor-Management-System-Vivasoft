@@ -1,10 +1,6 @@
 package repository
 
 import (
-	//"fmt"
-	//"github.com/jinzhu/gorm"
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
-	//"visitor-management-system/database"
 	"time"
 	"visitor-management-system/model"
 )
@@ -24,18 +20,18 @@ func GetVisitor(visitor *model.Visitor) (*model.Visitor, error) {
 	return visitor, err
 }
 
-func GetVisitorDetails(visitor *model.Visitor) (*model.Visitor, error) {
-	err := db.Preload("TrackVisitors").Find(&visitor).Error
+func GetVisitorDetails(visitor *model.Visitor, id int) (*model.Visitor, error) {
+	err := db.Where("company_id = ? AND id = ?", id, visitor.Id).Preload("TrackVisitors").Find(&visitor).Error
 	return visitor, err
 }
 
-func UpdateVisitor(visitor *model.Visitor) error {
-	err := db.Save(&visitor).Error
+func UpdateVisitor(visitor *model.Visitor, id int) error {
+	err := db.Where("company_id = ? AND id = ?", id, visitor.Id).Save(&visitor).Error
 	return err
 }
 
-func Search(visitor *model.Visitor) (*model.Visitor, error) {
-	err := db.Where("phone = ?", visitor.Phone).Find(&visitor).Error
+func Search(visitor *model.Visitor, id int) (*model.Visitor, error) {
+	err := db.Where("phone = ? AND company_id =?", visitor.Phone, id).Find(&visitor).Error
 	return visitor, err
 }
 

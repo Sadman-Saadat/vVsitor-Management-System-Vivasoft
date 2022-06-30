@@ -2,7 +2,6 @@ package model
 
 import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	//"image"
 )
 
 type Visitor struct {

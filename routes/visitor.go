@@ -18,6 +18,5 @@ func Visitor(e *echo.Echo) {
 	sub.POST("/checkin", controller.CheckIn)
 	sub.GET("/log", controller.GetTodaysVisitor)
 	sub.POST("/check-out/:id", controller.CheckOut)
-	//	sub.GET("/log-info", controller.GetVisitorLog, middleware.Authenticate)
 
 }

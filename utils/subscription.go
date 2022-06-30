@@ -26,6 +26,9 @@ func ValidateSubscription(id int) (bool, string, error) {
 	if err != nil {
 		return false, "", err
 	}
+	if res.Subscription_type == "cancel" {
+		return false, consts.Upgrade, err
+	}
 	if res.Subscription_type == "silver" && count > 3 {
 		return false, consts.Upgrade, err
 	}

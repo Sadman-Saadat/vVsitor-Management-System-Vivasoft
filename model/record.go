@@ -2,8 +2,6 @@ package model
 
 import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	//"time"
-	//"image"
 )
 
 type Record struct {

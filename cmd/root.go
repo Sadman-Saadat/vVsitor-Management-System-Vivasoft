@@ -45,7 +45,10 @@ func Execute() {
 	routes.User(e)
 	routes.Visitor(e)
 
-	e.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))
+	dg := e.Group("docs")
+	dg.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))
+	dg.GET("/redoc", echo.WrapHandler(middleware.ReDocDocs()))
+	dg.GET("/rapidoc", echo.WrapHandler(middleware.RapiDocs()))
 	e.File("/swagger.yaml", "./swagger.yaml")
 	e.Start(":" + config.Port)
 }

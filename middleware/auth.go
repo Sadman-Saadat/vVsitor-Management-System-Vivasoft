@@ -43,9 +43,24 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 
 func SwaggerDocs() http.Handler {
 	opts := openMiddleware.SwaggerUIOpts{
-		BasePath: "/",
-		Path:     "docs/open_api",
-		SpecURL:  "/swagger.yaml",
+		Path:    "docs/swagger",
+		SpecURL: "/swagger.yaml",
 	}
 	return openMiddleware.SwaggerUI(opts, nil)
+}
+
+func ReDocDocs() http.Handler {
+	opts := openMiddleware.RedocOpts{
+		Path:    "docs/redoc",
+		SpecURL: "/swagger.yaml",
+	}
+	return openMiddleware.Redoc(opts, nil)
+}
+
+func RapiDocs() http.Handler {
+	opts := openMiddleware.RapiDocOpts{
+		Path:    "docs/rapidoc",
+		SpecURL: "/swagger.yaml",
+	}
+	return openMiddleware.RapiDoc(opts, nil)
 }
