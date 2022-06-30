@@ -4,6 +4,7 @@ import (
 	"visitor-management-system/helpers"
 	//"fmt"
 	//jwt "github.com/dgrijalva/jwt-go"
+	openMiddleware "github.com/go-openapi/runtime/middleware"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
@@ -38,4 +39,13 @@ func Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 
 		return next(c)
 	}
+}
+
+func SwaggerDocs() http.Handler {
+	opts := openMiddleware.SwaggerUIOpts{
+		BasePath: "/",
+		Path:     "docs/open_api",
+		SpecURL:  "/swagger.yaml",
+	}
+	return openMiddleware.SwaggerUI(opts, nil)
 }

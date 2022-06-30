@@ -2,7 +2,7 @@ package model
 
 import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"time"
+	//"time"
 	//"image"
 )
 
@@ -15,9 +15,10 @@ type Record struct {
 	VisitorAddress        string
 	VisitorImagePath      string
 	AppointedTo           string
-	Token                 string
+	LuggageToken          string
 	CompanyRepresentating string
-	Date                  time.Time
-	CheckIn               time.Time
-	checkOut              time.Time
+	CompanyId             int
+	Date                  string
+	CheckIn               string
+	CheckOut              string
 }

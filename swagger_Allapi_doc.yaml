@@ -1,0 +1,969 @@
+consumes:
+- application/json
+definitions:
+  ClientError:
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        example: bad_request
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Company:
+    properties:
+      Id:
+        format: int64
+        type: integer
+      Subscription:
+        $ref: '#/definitions/Subscription'
+      User:
+        items:
+          $ref: '#/definitions/User'
+        type: array
+      address:
+        type: string
+        x-go-name: Address
+      company_name:
+        type: string
+        x-go-name: CompanyName
+      subscriber_email:
+        type: string
+        x-go-name: SubscriberEmail
+      subscriber_name:
+        type: string
+        x-go-name: SubscriberName
+    type: object
+    x-go-package: visitor-management-system/model
+  CompanyPayload:
+    properties:
+      Subscription:
+        $ref: '#/definitions/SubscriptionPayload'
+      address:
+        description: 'in: string'
+        example: banani
+        type: string
+        x-go-name: Address
+      company_name:
+        description: 'in: string'
+        example: vivasoft
+        type: string
+        x-go-name: CompanyName
+      subscriber_email:
+        description: 'in: string'
+        example: quddusjunior1916@gmail.com
+        type: string
+        x-go-name: SubscriberEmail
+      subscriber_name:
+        description: 'in: string'
+        example: nafiul quddus
+        type: string
+        x-go-name: SubscriberName
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Genericsuccess:
+    properties:
+      message:
+        description: |-
+          Message of the success
+          in: string
+        example: successfull
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  ID:
+    properties:
+      id:
+        format: int64
+        type: integer
+        x-go-name: Id
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Image:
+    description: |-
+      Image is a finite rectangular grid of color.Color values taken from a color
+      model.
+    properties:
+      Bounds:
+        $ref: '#/definitions/Rectangle'
+      ColorModel:
+        $ref: '#/definitions/Model'
+    type: object
+    x-go-package: image
+  Model:
+    description: |-
+      Model can convert any Color to one from its own color model. The conversion
+      may be lossy.
+    type: object
+    x-go-package: image/color
+  Password:
+    properties:
+      confirm_password:
+        type: string
+        x-go-name: ConfirmPassword
+      password:
+        type: string
+        x-go-name: Password
+    type: object
+    x-go-package: visitor-management-system/types
+  PayloadCheckin:
+    properties:
+      appointed_to:
+        type: string
+        x-go-name: AppointedTo
+      floor_number:
+        format: int64
+        type: integer
+        x-go-name: FloorNumber
+      image:
+        $ref: '#/definitions/Image'
+      luggage_token:
+        type: string
+        x-go-name: LuggageToken
+      purpose:
+        type: string
+        x-go-name: Purpose
+      status:
+        type: string
+        x-go-name: Status
+      v_id:
+        format: int64
+        type: integer
+        x-go-name: VId
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Phone:
+    properties:
+      phone:
+        type: string
+        x-go-name: Phone
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Point:
+    properties:
+      X:
+        format: int64
+        type: integer
+        x-go-name: "Y"
+    title: A Point is an X, Y coordinate pair. The axes increase right and down.
+    type: object
+    x-go-package: image
+  Rectangle:
+    description: |-
+      A Rectangle is also an Image whose bounds are the rectangle itself. At
+      returns color.Opaque for points in the rectangle and color.Transparent
+      otherwise.
+    properties:
+      Min:
+        $ref: '#/definitions/Point'
+    title: |-
+      A Rectangle contains the points with Min.X <= X < Max.X, Min.Y <= Y < Max.Y.
+      It is well-formed if Min.X <= Max.X and likewise for Y. Points are always
+      well-formed. A rectangle's methods always return well-formed outputs for
+      well-formed inputs.
+    type: object
+    x-go-package: image
+  RegVis:
+    properties:
+      CompanyRepresentating:
+        type: string
+      address:
+        type: string
+        x-go-name: Address
+      email:
+        type: string
+        x-go-name: Email
+      image:
+        $ref: '#/definitions/Image'
+      name:
+        type: string
+        x-go-name: Name
+      phone:
+        type: string
+        x-go-name: Phone
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  ServerError:
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        example: server_error
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Subscription:
+    properties:
+      Id:
+        format: int64
+        type: integer
+      Subscription_end:
+        format: date-time
+        type: string
+      Subscription_start:
+        format: date-time
+        type: string
+      company_id:
+        format: int64
+        type: integer
+        x-go-name: CompanyId
+      subscription_type:
+        type: string
+        x-go-name: Subscription_type
+    type: object
+    x-go-package: visitor-management-system/model
+  SubscriptionPayload:
+    properties:
+      subscription_type:
+        description: 'in: string'
+        example: silver
+        type: string
+        x-go-name: Subscription_type
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Token:
+    properties:
+      User_Refreshtoken:
+        type: string
+      User_Token:
+        type: string
+    type: object
+    x-go-package: visitor-management-system/types
+  TrackVisitor:
+    properties:
+      CheckIn:
+        type: string
+      CheckOut:
+        type: string
+      CompanyId:
+        format: int64
+        type: integer
+      Date:
+        type: string
+      Id:
+        format: int64
+        type: integer
+      ImagePath:
+        type: string
+      appointed_to:
+        type: string
+        x-go-name: AppointedTo
+      floor_number:
+        format: int64
+        type: integer
+        x-go-name: FloorNumber
+      luggage_token:
+        type: string
+        x-go-name: LuggageToken
+      purpose:
+        type: string
+        x-go-name: Purpose
+      status:
+        type: string
+        x-go-name: Status
+      v_id:
+        format: int64
+        type: integer
+        x-go-name: VId
+    type: object
+    x-go-package: visitor-management-system/model
+  UnAuthorized:
+    properties:
+      message:
+        description: |-
+          Message of the error
+          in: string
+        example: unAuthorized
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  User:
+    properties:
+      CompanyId:
+        format: int64
+        type: integer
+      Id:
+        format: int64
+        type: integer
+      Password:
+        type: string
+      email:
+        type: string
+        x-go-name: Email
+      name:
+        type: string
+        x-go-name: Name
+      user_type:
+        type: string
+        x-go-name: UserType
+    type: object
+    x-go-package: visitor-management-system/model
+  UserCreate:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      name:
+        type: string
+        x-go-name: Name
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  UserD:
+    properties:
+      email:
+        type: string
+        x-go-name: Email
+      password:
+        type: string
+        x-go-name: Password
+      user_type:
+        type: string
+        x-go-name: Type
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+  Visitor:
+    properties:
+      CompanyId:
+        format: int64
+        type: integer
+      ImageName:
+        type: string
+      ImagePath:
+        type: string
+      TrackVisitors:
+        items:
+          $ref: '#/definitions/TrackVisitor'
+        type: array
+      address:
+        type: string
+        x-go-name: Address
+      company_rep:
+        type: string
+        x-go-name: CompanyRepresentating
+      email:
+        type: string
+        x-go-name: Email
+      id:
+        format: int64
+        type: integer
+        x-go-name: Id
+      name:
+        type: string
+        x-go-name: Name
+      phone:
+        type: string
+        x-go-name: Phone
+    type: object
+    x-go-package: visitor-management-system/model
+  VisitorsearchDetails:
+    properties:
+      CompanyId:
+        format: int64
+        type: integer
+      ImageName:
+        type: string
+      ImagePath:
+        type: string
+      address:
+        type: string
+        x-go-name: Address
+      company_rep:
+        type: string
+        x-go-name: CompanyRepresentating
+      email:
+        type: string
+        x-go-name: Email
+      id:
+        format: int64
+        type: integer
+        x-go-name: Id
+      name:
+        type: string
+        x-go-name: Name
+      phone:
+        type: string
+        x-go-name: Phone
+    type: object
+    x-go-package: visitor-management-system/docs/open_api
+host: localhost:8080
+info:
+  contact:
+    email: quddusjunior1916@gmail.com
+    name: Nafiul-Quddus
+  description: the purpose of this service is to provide & store all visitors of a
+    company and their visit histories
+  license:
+    name: None
+  title: VMS API.
+  version: v1.0.0
+paths:
+  /subscriber/:
+    delete:
+      consumes:
+      - application/json
+      description: cancel the subscription
+      operationId: CancelSub
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Subscriber
+  /subscriber/change-subscription:
+    patch:
+      consumes:
+      - application/json
+      description: change the subscription
+      operationId: ChangeSub
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/SubscriptionPayload'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Subscriber
+  /subscriber/registration:
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscriber
+      operationId: CreateSub
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/CompanyPayload'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "201":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Subscriber
+  /user/:
+    delete:
+      consumes:
+      - application/json
+      description: delete a  user
+      operationId: DeleteUser
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/ID'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - USER
+  /user/change-password:
+    post:
+      consumes:
+      - application/json
+      description: change user password
+      operationId: ChangePassword
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Password'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/LoginSuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - USER
+  /user/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      operationId: CreateUser
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserCreate'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - USER
+  /user/get-all:
+    get:
+      consumes:
+      - application/json
+      description: details of all users
+      operationId: AllUser
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/UserDetails'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - USER
+  /user/login:
+    patch:
+      consumes:
+      - application/json
+      description: user login
+      operationId: LoginDetails
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/UserD'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/LoginSuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "401":
+          description: UnAuthorized
+          schema:
+            $ref: '#/definitions/UnAuthorized'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - USER
+  /visitor/checkin:
+    post:
+      consumes:
+      - multipart/form-data
+      description: checkin
+      operationId: Checkin
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/PayloadCheckin'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/checkout/:id:
+    post:
+      consumes:
+      - multipart/form-data
+      description: checkout
+      operationId: checkout
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/details:
+    get:
+      consumes:
+      - multipart/form-data
+      description: All the visits of a visitor to that company
+      operationId: AllDetails
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/ID'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/Alltrackdetaails'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/get-all:
+    get:
+      consumes:
+      - multipart/form-data
+      description: All the registered visitor for specific company
+      operationId: Visitors
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/AllVisitor'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/log:
+    get:
+      consumes:
+      - multipart/form-data
+      description: all the visitor present today
+      operationId: TodaysVisitor
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "200":
+          $ref: '#/responses/LogResponse'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/registration:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new Visitor
+      operationId: CreateVisitor
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/RegVis'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "201":
+          description: Genericsuccess
+          schema:
+            $ref: '#/definitions/Genericsuccess'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+  /visitor/search:
+    get:
+      consumes:
+      - multipart/form-data
+      description: is the visitor registered
+      operationId: Isregistered
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Phone'
+      produces:
+      - application/json
+      - 'SecurityDefinitions:'
+      - 'AuthToken:'
+      - 'type: apiKey'
+      - 'name: bearer'
+      - 'in: header'
+      responses:
+        "302":
+          $ref: '#/responses/Visitordetails'
+        "400":
+          description: ClientError
+          schema:
+            $ref: '#/definitions/ClientError'
+        "404":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+        "500":
+          description: ServerError
+          schema:
+            $ref: '#/definitions/ServerError'
+      tags:
+      - Visitor
+produces:
+- application/json
+responses:
+  AllVisitor:
+    description: all visitors
+    schema:
+      items:
+        $ref: '#/definitions/VisitorsearchDetails'
+      type: array
+  Alltrackdetaails:
+    description: all visits
+    schema:
+      items:
+        $ref: '#/definitions/TrackVisitor'
+      type: array
+  CreateSubResponse:
+    description: response after a Subscriber created
+    schema:
+      $ref: '#/definitions/Company'
+  LogResponse:
+    description: track visitor only contains todays data if the  visitor hava multiple
+      visits
+    schema:
+      items:
+        $ref: '#/definitions/Visitor'
+      type: array
+  LoginSuccess:
+    description: response after a user login
+    schema:
+      $ref: '#/definitions/Token'
+  UserDetails:
+    description: response about all user details
+    schema:
+      items:
+        $ref: '#/definitions/User'
+      type: array
+  Visitordetails:
+    description: response for searching a visitor
+    schema:
+      $ref: '#/definitions/VisitorsearchDetails'
+schemes:
+- http
+securityDefinitions:
+  base64:
+    in: header
+    name: ar5go-app-key
+    type: apiKey
+swagger: "2.0"

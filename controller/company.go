@@ -9,11 +9,32 @@ import (
 	"visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
-	"visitor-management-system/types"
 	"visitor-management-system/utils"
 )
 
 var validate = validator.New()
+
+// swagger:route POST /subscriber/registration Subscriber CreateSub
+// Create a new subscriber
+// responses:
+//	201: Genericsuccess
+//	400: ClientError
+//	404: ServerError
+//	500: ServerError
+//     Security:
+//     - AuthToken
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     SecurityDefinitions:
+//     AuthToken:
+//          type: apiKey
+//          name: bearer
+//          in: header
 
 func Registration(c echo.Context) error {
 	var company = new(model.Company)
@@ -75,37 +96,27 @@ func GetAllSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, all_subscriber)
 }
 
-func ChangePassword(c echo.Context) error {
-	var password = new(types.Password)
-
-	if err := c.Bind(password); err != nil {
-		return c.JSON(http.StatusBadRequest, consts.BadRequest)
-	}
-
-	if validationerr := validate.Struct(password); validationerr != nil {
-		return c.JSON(http.StatusBadRequest, validationerr.Error())
-	}
-	//token validation
-
-	auth_token := c.Request().Header.Get("Authorization")
-	split_token := strings.Split(auth_token, "Bearer ")
-	claims, err := utils.DecodeToken(split_token[1])
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
-	}
-	user, err := repository.GetUserByEmail(claims.Email)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, consts.UnAuthorized)
-	}
-	//subscriber validation and update password
-	if user.Id == claims.Id && password.Password == password.ConfirmPassword {
-		user.Password, err = utils.Encrypt(password.ConfirmPassword)
-		if err := repository.UpdateUser(user); err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-	}
-	return c.JSON(http.StatusOK, user)
-}
+// swagger:route PATCH /subscriber/change-subscription Subscriber ChangeSub
+// change the subscription
+// responses:
+//	200: Genericsuccess
+//	400: ClientError
+//	401: UnAuthorized
+//	500: ServerError
+//     Security:
+//     - AuthToken
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     SecurityDefinitions:
+//     AuthToken:
+//          type: apiKey
+//          name: bearer
+//          in: header
 
 func ChangeSubscription(c echo.Context) error {
 	var subscription = new(model.Subscription)
@@ -132,6 +143,28 @@ func ChangeSubscription(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, subscription)
 }
+
+// swagger:route DELETE /subscriber/ Subscriber CancelSub
+// cancel the subscription
+// responses:
+//	200: Genericsuccess
+//	400: ClientError
+//	401: UnAuthorized
+//	500: ServerError
+//     Security:
+//     - AuthToken
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     SecurityDefinitions:
+//     AuthToken:
+//          type: apiKey
+//          name: bearer
+//          in: header
 
 func CancelSubscription(c echo.Context) error {
 	var subscription = new(model.Subscription)

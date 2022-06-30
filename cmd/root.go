@@ -8,10 +8,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"os"
 	"visitor-management-system/config"
+	"visitor-management-system/middleware"
 
 	"visitor-management-system/routes"
 
 	"github.com/spf13/cobra"
+	//"github.com/swaggo/echo-swagger"
+	//_ "visitor-management-system/docs"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -41,6 +44,9 @@ func Execute() {
 	routes.Company(e)
 	routes.User(e)
 	routes.Visitor(e)
+
+	e.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))
+	e.File("/swagger.yaml", "./swagger.yaml")
 	e.Start(":" + config.Port)
 }
 

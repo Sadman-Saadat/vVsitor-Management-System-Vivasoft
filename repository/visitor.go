@@ -14,8 +14,8 @@ func CreateVisitor(visitor *model.Visitor) error {
 	return err
 }
 
-func GetAllVisitor() (visitor []*model.Visitor, err error) {
-	err = db.Preload("TrackVisitors").Find(&visitor).Error
+func GetAllVisitor(id int) (visitor []*model.Visitor, err error) {
+	err = db.Where("company_id = ?", id).Preload("TrackVisitors").Find(&visitor).Error
 	return
 }
 
@@ -59,4 +59,20 @@ func GetTodaysVisitor(id int) ([]*model.Visitor, error) {
 	today := time.Now().Local().Format("2006-01-02")
 	err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.date = ? AND track_visitors.status = ?", today, val).Preload("TrackVisitors", "date = ?", today).Find(&visitor).Error
 	return visitor, err
+}
+
+func GetTrackDetails(visitor *model.Visitor) (model.TrackVisitor, error) {
+	var track model.TrackVisitor
+	today := time.Now().Local().Format("2006-01-02")
+	err := db.Where(" date=? AND company_id = ? AND v_id=?", today, visitor.CompanyId, visitor.Id).Find(&track).Error
+	return track, err
+
+}
+
+func CheckOut(visitor *model.Visitor, track model.TrackVisitor) error {
+
+	today := time.Now().Local().Format("2006-01-02")
+
+	err := db.Where("company_id = ? AND v_id =? AND date=?", visitor.CompanyId, visitor.Id, today).Save(&track).Error
+	return err
 }
