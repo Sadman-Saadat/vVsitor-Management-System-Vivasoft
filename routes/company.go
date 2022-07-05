@@ -11,5 +11,6 @@ func Company(e *echo.Echo) {
 	sub.POST("/registration", controller.Registration)
 	sub.PATCH("/change-subscription", controller.ChangeSubscription, middleware.Authenticate)
 	sub.DELETE("/", controller.CancelSubscription, middleware.Authenticate)
+	
 
 }

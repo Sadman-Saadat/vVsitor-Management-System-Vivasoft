@@ -11,7 +11,7 @@ import (
 var db *gorm.DB
 
 func Connect() {
-	dns := fmt.Sprintf("%s/%s?charset=utf8mb4&parseTime=True&loc=Local", config.GetConfig().SqlUri, config.GetConfig().SqlDb)
+	dns := fmt.Sprintf("%s/%s?charset=utf8mb4&parseTime=True", config.GetConfig().SqlUri, config.GetConfig().SqlDb)
 	database, err := gorm.Open("mysql", dns)
 
 	if err != nil {

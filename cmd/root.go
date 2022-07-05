@@ -9,6 +9,7 @@ import (
 	"os"
 	"visitor-management-system/config"
 	"visitor-management-system/middleware"
+//	"visitor-management-system/database"
 
 	"visitor-management-system/routes"
 
@@ -40,6 +41,7 @@ func Execute() {
 		os.Exit(1)
 	}
 	e := echo.New()
+
 	config := config.GetConfig()
 	routes.Company(e)
 	routes.User(e)
