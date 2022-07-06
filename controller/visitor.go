@@ -54,6 +54,12 @@ func CreateVisitor(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
+	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId)
+
+	if is_registered != true || err != nil {
+		return c.JSON(http.StatusBadRequest, "user already registered")
+	}
+
 	res, str, err := utils.ValidateSubscription(claims.CompanyId)
 	if res != true || err != nil {
 		return c.JSON(http.StatusOK, str)

@@ -42,10 +42,14 @@ func CheckIn(info *model.TrackVisitor) error {
 
 func CountPresentVisitor(id int) (int, error) {
 	var count int
+	var count2 int
 	today := time.Now().Local().Format("2006-01-02")
 	val := "Arrived"
+	val2 := "left"
 	var visitor []*model.TrackVisitor
 	err := db.Where("status = ? AND date=? AND company_id = ?", val, today, id).Find(&visitor).Count(&count).Error
+	err = db.Where("status = ? AND date=? AND company_id = ?", val2, today, id).Find(&visitor).Count(&count2).Error
+	count = count + count2
 	return count, err
 }
 
@@ -53,7 +57,7 @@ func GetTodaysVisitor(id int) ([]*model.Visitor, error) {
 	var visitor []*model.Visitor
 	val := "Arrived"
 	today := time.Now().Local().Format("2006-01-02")
-	err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.date = ? AND track_visitors.status = ?", today, val).Preload("TrackVisitors", "date = ?", today).Find(&visitor).Error
+	err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.company_id =?  AND track_visitors.date = ? AND track_visitors.status = ?", id, today, val).Preload("TrackVisitors", "date = ? ", today).Find(&visitor).Error
 	return visitor, err
 }
 
@@ -71,4 +75,15 @@ func CheckOut(visitor *model.Visitor, track model.TrackVisitor) error {
 
 	err := db.Where("company_id = ? AND v_id =? AND date=?", visitor.CompanyId, visitor.Id, today).Save(&track).Error
 	return err
+}
+
+func IsVistorRegistered(email string, id int) (bool, error) {
+	var visitor []*model.Visitor
+	var count int
+	err := db.Where("email= ? AND company_id = ?", email, id).Find(&visitor).Count(&count).Error
+	if count != 0 {
+		return false, err
+	}
+	return true, err
+
 }

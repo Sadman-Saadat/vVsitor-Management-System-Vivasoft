@@ -32,7 +32,7 @@ func ValidateSubscription(id int) (bool, string, error) {
 	if res.Subscription_type == "silver" && count > 3 {
 		return false, consts.Upgrade, err
 	}
-	if res.Subscription_type == "free" && count > 10 {
+	if res.Subscription_type == "free" && count > 5 {
 		return false, consts.Upgrade, err
 	}
 	if res.Subscription_type == "premium" {
