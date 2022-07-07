@@ -40,9 +40,9 @@ func CheckIn(info *model.TrackVisitor) error {
 	return err
 }
 
-func CountPresentVisitor(id int) (int, error) {
-	var count int
-	var count2 int
+func CountPresentVisitor(id int) (int64, error) {
+	var count int64
+	var count2 int64
 	today := time.Now().Local().Format("2006-01-02")
 	val := "Arrived"
 	val2 := "left"
@@ -79,7 +79,7 @@ func CheckOut(visitor *model.Visitor, track model.TrackVisitor) error {
 
 func IsVistorRegistered(email string, id int) (bool, error) {
 	var visitor []*model.Visitor
-	var count int
+	var count int64
 	err := db.Where("email= ? AND company_id = ?", email, id).Find(&visitor).Count(&count).Error
 	if count != 0 {
 		return false, err
