@@ -9,6 +9,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/cobra"
 	"visitor-management-system/database"
+	//"visitor-management-system/migration"
 )
 
 // automigrateCmd represents the automigrate command

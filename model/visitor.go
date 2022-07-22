@@ -15,7 +15,7 @@ type Visitor struct {
 
 	ImagePath             string
 	CompanyRepresentating string         `json:"company_rep"`
-	TrackVisitors         []TrackVisitor `gorm:"ForeignKey:VId"`
+	TrackVisitors         []TrackVisitor `gorm:"ForeignKey:VId;references:Id"`
 }
 
 type TrackVisitor struct {

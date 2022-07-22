@@ -206,3 +206,7 @@ func CancelSubscription(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, subscription)
 }
+
+func Healthcheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, "ki obostha?")
+}
