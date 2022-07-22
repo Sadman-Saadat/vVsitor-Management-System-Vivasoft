@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"os"
 	"visitor-management-system/config"
+	"visitor-management-system/database"
 	"visitor-management-system/middleware"
-//	"visitor-management-system/database"
 
 	"visitor-management-system/routes"
 
@@ -41,6 +41,9 @@ func Execute() {
 		os.Exit(1)
 	}
 	e := echo.New()
+
+	database.GetDB()
+	database.Migration()
 
 	config := config.GetConfig()
 	routes.Company(e)

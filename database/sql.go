@@ -34,6 +34,8 @@ func Migration() {
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.AutoMigrate(&model.Record{})
+
+	fmt.Println("all migrated")
 	//db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
 
 	//db.Model(&model.Subscription{}).AddForeignKey("company_id", "companies(id)", "RESTRICT", "RESTRICT")
