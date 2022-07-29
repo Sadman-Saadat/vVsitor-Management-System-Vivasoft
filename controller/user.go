@@ -1,6 +1,7 @@
 package controller
 
 import (
+	// /"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
@@ -38,6 +39,7 @@ func Login(c echo.Context) (err error) {
 	var user = new(types.User)
 	var model_user = new(model.User)
 	var tokens = new(types.Token)
+	sub_domain := c.QueryParam("subdomain")
 
 	if err := c.Bind(user); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
@@ -47,7 +49,7 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
 
-	model_user, err = repository.GetUserByEmail(user.Email, user.CompanyId)
+	model_user, err = repository.GetUserByEmail(user.Email, sub_domain)
 	if model_user.Email == "" || err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
@@ -56,7 +58,7 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId)
+	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId, model_user.BranchId, model_user.SubDomain)
 	tokens.User_Token = token
 	tokens.User_Refreshtoken = refresh_token
 
@@ -90,20 +92,32 @@ func Login(c echo.Context) (err error) {
 
 func CreateUser(c echo.Context) error {
 	var user = new(model.User)
+	var new_user = new(types.User)
 
-	if err := c.Bind(user); err != nil {
+	if err := c.Bind(new_user); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
 	}
 
-	if validationerr := validate.Struct(user); validationerr != nil {
-		return c.JSON(http.StatusBadRequest, validationerr.Error())
-	}
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
+
+	res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchName)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	user.BranchId = res.Id
+	user.Name = new_user.Name
+	user.Email = new_user.Email
+	user.Password = new_user.Password
+	user.UserType = "Official"
+	user.SubDomain = claims.SubDomain
+	//fmt.Println(user.SubDomain)
+	//user.Branch.Address = res.Address
 	user.CompanyId = claims.CompanyId
 	password, err := utils.GenerateRandomPassword()
 	if err != nil {
@@ -114,6 +128,10 @@ func CreateUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	if validationerr := validate.Struct(user); validationerr != nil {
+		return c.JSON(http.StatusBadRequest, validationerr.Error())
+	}
+
 	if claims.UserType == "Admin" {
 		if err := repository.CreateUser(user); err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -124,7 +142,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, "user created successfullys")
+	return c.JSON(http.StatusCreated, user)
 }
 
 // swagger:route GET /user/get-all USER AllUser
@@ -233,6 +251,7 @@ func DeleteOfficialUser(c echo.Context) error {
 
 func ChangePassword(c echo.Context) error {
 	var password = new(types.Password)
+	sub_domain := c.QueryParam("subdomain")
 
 	if err := c.Bind(password); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
@@ -249,7 +268,7 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	user, err := repository.GetUserByEmail(claims.Email, claims.CompanyId)
+	user, err := repository.GetUserByEmail(claims.Email, sub_domain)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, consts.UnAuthorized)
 	}

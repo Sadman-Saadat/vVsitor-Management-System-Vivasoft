@@ -1,10 +1,10 @@
 package types
 
 type User struct {
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required"`
-	Type      string `json:"user_type" validate:"required,eq=Admin|eq=Official"`
-	CompanyId int    `json:"company_id"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password" validate:"required"`
+	BranchName string `json:"branch_name"`
+	Name       string `json:"name"`
 }
 
 type Password struct {

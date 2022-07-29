@@ -9,7 +9,7 @@ import (
 	"os"
 	"visitor-management-system/config"
 	"visitor-management-system/middleware"
-//	"visitor-management-system/database"
+	//	"visitor-management-system/database"
 
 	"visitor-management-system/routes"
 
@@ -46,6 +46,7 @@ func Execute() {
 	routes.Company(e)
 	routes.User(e)
 	routes.Visitor(e)
+	routes.Branch(e)
 
 	dg := e.Group("docs")
 	dg.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))

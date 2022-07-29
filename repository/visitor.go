@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"time"
 	"visitor-management-system/model"
 )
@@ -30,9 +31,23 @@ func UpdateVisitor(visitor *model.Visitor, id int) error {
 	return err
 }
 
-func Search(visitor *model.Visitor, id int) (*model.Visitor, error) {
-	err := db.Where("phone = ? AND company_id =?", visitor.Phone, id).Find(&visitor).Error
-	return visitor, err
+func Search(visitor *model.Visitor, id int) ([]*model.Visitor, error) {
+	var list []*model.Visitor
+	phone := fmt.Sprintf(visitor.Phone)
+	phone += fmt.Sprintf("%s", "%")
+	fmt.Println(phone)
+	err := db.Where("phone LIKE ? AND company_id =?", phone, id).Find(&list).Error
+	return list, err
+}
+
+func SearchForSpecificBranch(visitor *model.Visitor, company_id int, branch_id int) ([]*model.Visitor, error) {
+	var list []*model.Visitor
+	phone := fmt.Sprintf(visitor.Phone)
+	phone += fmt.Sprintf("%s", "%")
+	fmt.Println(phone)
+	err := db.Where("phone LIKE ? AND company_id =? AND branch_id = ?", phone, company_id, branch_id).Find(&list).Error
+	return list, err
+
 }
 
 func CheckIn(info *model.TrackVisitor) error {
@@ -40,9 +55,9 @@ func CheckIn(info *model.TrackVisitor) error {
 	return err
 }
 
-func CountPresentVisitor(id int) (int, error) {
-	var count int
-	var count2 int
+func CountPresentVisitor(id int) (int64, error) {
+	var count int64
+	var count2 int64
 	today := time.Now().Local().Format("2006-01-02")
 	val := "Arrived"
 	val2 := "left"
@@ -79,7 +94,7 @@ func CheckOut(visitor *model.Visitor, track model.TrackVisitor) error {
 
 func IsVistorRegistered(email string, id int) (bool, error) {
 	var visitor []*model.Visitor
-	var count int
+	var count int64
 	err := db.Where("email= ? AND company_id = ?", email, id).Find(&visitor).Count(&count).Error
 	if count != 0 {
 		return false, err

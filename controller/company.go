@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -56,8 +57,10 @@ func Registration(c echo.Context) error {
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
+	res, err := repository.RegisterCompany(company)
+	fmt.Println(res)
 
-	if err := repository.RegisterCompany(company); err != nil {
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	//randrom password generator
@@ -72,10 +75,11 @@ func Registration(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	//create subscriber
-	admin.CompanyId = company.Id
+	admin.CompanyId = res.Id
 	admin.Name = company.SubscriberName
 	admin.Email = company.SubscriberEmail
 	admin.UserType = "Admin"
+	admin.SubDomain = company.SubDomain
 
 	if validationerr := validate.Struct(admin); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())

@@ -7,9 +7,9 @@ import (
 
 var db = database.GetDB()
 
-func RegisterCompany(company *model.Company) error {
+func RegisterCompany(company *model.Company) (*model.Company, error) {
 	err := db.Create(&company).Error
-	return err
+	return company, err
 }
 
 func GetAllSubscriber() (all_company []model.Company, err error) {

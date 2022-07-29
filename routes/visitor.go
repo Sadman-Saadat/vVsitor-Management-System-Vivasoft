@@ -14,7 +14,7 @@ func Visitor(e *echo.Echo) {
 	sub.GET("/get-by-id", controller.GetVisitorDetails)
 	sub.PATCH("/update", controller.UpdateVisitor)
 	sub.GET("/", controller.GetVisitor)
-	sub.GET("/search", controller.SearchVisitor)
+	sub.GET("/search/:phone", controller.SearchVisitor)
 	sub.POST("/checkin", controller.CheckIn)
 	sub.GET("/log", controller.GetTodaysVisitor)
 	sub.POST("/check-out/:id", controller.CheckOut)

@@ -2,6 +2,7 @@ package model
 
 import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"time"
 )
 
 type Record struct {
@@ -16,7 +17,7 @@ type Record struct {
 	LuggageToken          string
 	CompanyRepresentating string
 	CompanyId             int
-	Date                  string
+	Date                  time.Time
 	CheckIn               string
 	CheckOut              string
 }

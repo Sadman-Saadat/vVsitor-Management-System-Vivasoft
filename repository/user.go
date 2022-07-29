@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"visitor-management-system/model"
 )
 
@@ -25,9 +26,17 @@ func UpdateOfficialUser(user *model.User) error {
 	return err
 }
 
-func GetUserByEmail(email string, id int) (*model.User, error) {
+func GetUserByEmail(email string, subdomain string) (*model.User, error) {
 	var user model.User
 
-	err := db.Where("company_id = ? AND email = ?", id, email).Find(&user).Error
+	err := db.Where("sub_domain = ? AND email = ?", subdomain, email).Find(&user).Error
 	return &user, err
+}
+
+func GetBranchDetails(id int, name string) (*model.Branch, error) {
+	fmt.Println(id)
+	fmt.Println(name)
+	var branch model.Branch
+	err := db.Model(&branch).Where("company_id = ? AND branch_name = ?", id, name).Find(&branch).Error
+	return &branch, err
 }

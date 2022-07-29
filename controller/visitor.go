@@ -53,6 +53,7 @@ func CreateVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
+	visitor.BranchId = claims.BranchId
 
 	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId)
 
@@ -236,20 +237,25 @@ func GetVisitor(c echo.Context) error {
 
 func SearchVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
-	if err := c.Bind(visitor); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	visitor.Phone = c.Param("phone")
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	res, err := repository.Search(visitor, claims.CompanyId)
+	if claims.UserType == "Admin" {
+		res, err := repository.Search(visitor, claims.CompanyId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, claims.BranchId)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
-	return c.JSON(http.StatusFound, res)
+	return c.JSON(http.StatusOK, res)
 }
 
 // swagger:route POST /visitor/checkin Visitor Checkin
@@ -284,6 +290,7 @@ func CheckIn(c echo.Context) error {
 	info.Purpose = c.FormValue("purpose")
 	info.LuggageToken = c.FormValue("luggage_token")
 	info.AppointedTo = c.FormValue("appointed_to")
+	info.AppointedToPhone = c.FormValue("appointed_to_phone")
 	info.Status = "Arrived"
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
@@ -299,6 +306,7 @@ func CheckIn(c echo.Context) error {
 	}
 
 	info.CompanyId = claims.CompanyId
+	info.BranchId = claims.BranchId
 	//save image
 	file, err := c.FormFile("image")
 
@@ -336,7 +344,7 @@ func CheckIn(c echo.Context) error {
 		info.ImagePath = uploadedfilepath
 
 	}
-	info.Date = time.Now().Local().Format("2006-01-02")
+	info.Date = time.Now().Local()
 	info.CheckIn = time.Now().Local().Format("03:04:05 pm")
 
 	if err := repository.CheckIn(info); err != nil {

@@ -9,5 +9,7 @@ type SignedUserDetails struct {
 	Email     string
 	CompanyId int
 	UserType  string
+	SubDomain string
+	BranchId  int
 	jwt.StandardClaims
 }
