@@ -104,6 +104,11 @@ func CreateVisitor(c echo.Context) error {
 		visitor.ImagePath = uploadedfilepath
 
 	}
+	resdetails, err := repository.GetBranchDetails(claims.CompanyId, claims.BranchId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	visitor.BranchName = resdetails.BranchName
 
 	if err := repository.CreateVisitor(visitor); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -371,6 +376,13 @@ func CheckIn(c echo.Context) error {
 	fmt.Println(info.Date)
 
 	info.CheckIn = time.Now().Local().Format("03:04:05 pm")
+
+	resdetails, err := repository.GetBranchDetails(claims.CompanyId, claims.BranchId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	info.BranchName = resdetails.BranchName
 
 	if err := repository.CheckIn(info); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

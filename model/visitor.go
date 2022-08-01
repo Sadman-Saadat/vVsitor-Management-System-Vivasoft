@@ -6,14 +6,15 @@ import (
 )
 
 type Visitor struct {
-	Id        int    `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Name      string `json:"name" validate:"required,min=2,max=30"`
-	Email     string `json:"email" validate:"email"`
-	Phone     string `json:"phone" validate:"required,number"`
-	Address   string `json:"address" validate:"required"`
-	CompanyId int
-	BranchId  int
-	ImageName string
+	Id         int    `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Name       string `json:"name" validate:"required,min=2,max=30"`
+	Email      string `json:"email" validate:"email"`
+	Phone      string `json:"phone" validate:"required,number"`
+	Address    string `json:"address" validate:"required"`
+	CompanyId  int
+	BranchId   int
+	BranchName string
+	ImageName  string
 
 	ImagePath             string
 	CompanyRepresentating string         `json:"company_rep"`
@@ -25,6 +26,7 @@ type TrackVisitor struct {
 	VId              int `json:"v_id" validate:"required,number"`
 	CompanyId        int
 	BranchId         int
+	BranchName       string
 	Status           string `json:"status" validate:"required,eq=Arrived|eq=WillArrive|eq=Left"`
 	Purpose          string `json:"purpose" validate:"required,min=7,max=40"`
 	AppointedTo      string `json:"appointed_to" validate:"required,min=7,max=40"`

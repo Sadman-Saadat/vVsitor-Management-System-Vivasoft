@@ -15,8 +15,8 @@ func SendEmail(user *model.User, password string) error {
 	subject := "Welcome to VMS"
 	body := fmt.Sprintf("Your credentials for login are given below: \n")
 	body += fmt.Sprintf("Username: %s \n", user.Email)
-	body += fmt.Sprintf("Password: %s \n", password)
-	body += fmt.Sprintf("Company SubDomain: %s \n", user.SubDomain)
+	body += fmt.Sprintf("Password: %s\n", password)
+	body += fmt.Sprintf("Company SubDomain: %s\n", user.SubDomain)
 
 	message := fmt.Sprintf("From: %s\r\n", config.GetConfig().Email)
 	message += fmt.Sprintf("To: %s\r\n", to)

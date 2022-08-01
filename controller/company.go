@@ -40,6 +40,7 @@ var validate = validator.New()
 func Registration(c echo.Context) error {
 	var company = new(model.Company)
 	var admin = new(model.User)
+	var branch = new(model.Branch)
 	//bind
 	if err := c.Bind(company); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -72,6 +73,13 @@ func Registration(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	branch.BranchName = "main"
+	branch.CompanyId = res.Id
+	branch.Address = company.Address
+	branchdetails, err := repository.CreateNewBranch(branch)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	//randrom password generator
 
 	password, err := utils.GenerateRandomPassword()
@@ -89,6 +97,7 @@ func Registration(c echo.Context) error {
 	admin.Email = company.SubscriberEmail
 	admin.UserType = "Admin"
 	admin.SubDomain = company.SubDomain
+	admin.BranchId = branchdetails.Id
 
 	if validationerr := validate.Struct(admin); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())

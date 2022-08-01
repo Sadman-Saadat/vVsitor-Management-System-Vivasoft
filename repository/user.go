@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"fmt"
+	//"fmt"
 	"visitor-management-system/model"
+	"visitor-management-system/types"
 )
 
 func CreateUser(user *model.User) error {
@@ -10,9 +11,11 @@ func CreateUser(user *model.User) error {
 	return err
 }
 
-func GetAllUsers(id int) ([]model.User, error) {
-	var official_users []model.User
-	err := db.Where("company_id = ?", id).Find(&official_users).Error
+func GetAllUsers(id int) ([]types.UserDetails, error) {
+	join_sql := "SELECT users.id,users.name,users.email,users.sub_domain ,users.company_id,users.branch_id,users.user_type,branches.branch_name,branches.address FROM users LEFT JOIN branches ON users.branch_id = branches.id WHERE users.company_id = ?"
+	var official_users []types.UserDetails
+	//err := db.Where("company_id = ?", id).Find(&official_users).Error
+	err := db.Raw(join_sql, id).Scan(&official_users).Error
 	return official_users, err
 }
 
@@ -33,10 +36,9 @@ func GetUserByEmail(email string, subdomain string) (*model.User, error) {
 	return &user, err
 }
 
-func GetBranchDetails(id int, name string) (*model.Branch, error) {
-	fmt.Println(id)
-	fmt.Println(name)
+func GetBranchDetails(id int, bid int) (*model.Branch, error) {
+
 	var branch model.Branch
-	err := db.Model(&branch).Where("company_id = ? AND branch_name = ?", id, name).Find(&branch).Error
+	err := db.Model(&branch).Where("company_id = ? AND id = ?", id, bid).Find(&branch).Error
 	return &branch, err
 }

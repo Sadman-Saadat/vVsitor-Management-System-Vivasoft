@@ -106,12 +106,13 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	// res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchName)
+	// res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchId)
 	// if err != nil {
 	// 	return c.JSON(http.StatusInternalServerError, err.Error())
 	// }
 
 	user.BranchId = new_user.BranchId
+	//user.Branch.BranchName = res.BranchName
 	user.Name = new_user.Name
 	user.Email = new_user.Email
 	user.Password = new_user.Password
