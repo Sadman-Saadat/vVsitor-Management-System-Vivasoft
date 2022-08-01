@@ -4,6 +4,7 @@ import (
 	// /"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 	"strings"
 	"visitor-management-system/const"
 	"visitor-management-system/model"
@@ -105,12 +106,12 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchName)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchName)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
 
-	user.BranchId = res.Id
+	user.BranchId = new_user.BranchId
 	user.Name = new_user.Name
 	user.Email = new_user.Email
 	user.Password = new_user.Password
@@ -206,9 +207,7 @@ func GetAllUser(c echo.Context) error {
 
 func DeleteOfficialUser(c echo.Context) error {
 	var user = new(model.User)
-	if err := c.Bind(user); err != nil {
-		return c.JSON(http.StatusBadRequest, consts.BadRequest)
-	}
+	user.Id, _ = strconv.Atoi(c.Param("id"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])

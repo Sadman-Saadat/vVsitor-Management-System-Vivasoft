@@ -5,9 +5,9 @@ import (
 	"visitor-management-system/model"
 )
 
-func CreateNewBranch(branch *model.Branch) error {
+func CreateNewBranch(branch *model.Branch) (*model.Branch, error) {
 	err := db.Create(&branch).Error
-	return err
+	return branch, err
 }
 
 func BranchList(id int) ([]model.Branch, error) {
@@ -26,4 +26,11 @@ func DeleteBranch(company_id int, id int) error {
 	branch.Id = id
 	err := db.Delete(&branch).Where("company_id = ?", company_id).Error
 	return err
+}
+
+func IsBranchValid(company_id int, branch_name string) (int64, error) {
+	var count int64
+	var branch []*model.Branch
+	err := db.Where("company_id = ? AND branch_name = ?", company_id, branch_name).Find(&branch).Count(&count).Error
+	return count, err
 }

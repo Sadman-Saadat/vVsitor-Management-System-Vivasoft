@@ -40,3 +40,10 @@ func GetPreviousSubscription(id int) (model.Subscription, error) {
 
 	return subscription, err
 }
+
+func IsCompanyValid(name string, subdomain string) (int64, error) {
+	var existing_company []*model.Company
+	var count int64
+	err := db.Where("company_name = ?", name).Or("sub_domain = ?", subdomain).Find(&existing_company).Count(&count).Error
+	return count, err
+}

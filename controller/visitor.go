@@ -55,7 +55,7 @@ func CreateVisitor(c echo.Context) error {
 	}
 	visitor.BranchId = claims.BranchId
 
-	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId)
+	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId, claims.BranchId)
 
 	if is_registered != true || err != nil {
 		return c.JSON(http.StatusBadRequest, "user already registered")
@@ -167,9 +167,10 @@ func GetAllVisitor(c echo.Context) error {
 //details
 func GetVisitorDetails(c echo.Context) error {
 	var visitor = new(model.Visitor)
-	if err := c.Bind(visitor); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	// if err := c.Bind(visitor); err != nil {
+	// 	return c.JSON(http.StatusBadRequest, err.Error())
+	// }
+	visitor.Id, _ = strconv.Atoi(c.Param("id"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
@@ -344,7 +345,15 @@ func CheckIn(c echo.Context) error {
 		info.ImagePath = uploadedfilepath
 
 	}
-	info.Date = time.Now().Local()
+
+	// t, _ = time.Parse(shortForm, "2013-Feb-03")
+	// fmt.Println(t)
+	times := time.Now().Local().Format("2006-01-02")
+	fmt.Println(times)
+	const shortForm = "2006-01-02"
+	info.Date, _ = time.Parse(shortForm, times)
+	fmt.Println(info.Date)
+
 	info.CheckIn = time.Now().Local().Format("03:04:05 pm")
 
 	if err := repository.CheckIn(info); err != nil {
@@ -376,13 +385,47 @@ func CheckIn(c echo.Context) error {
 //          in: header
 
 func GetTodaysVisitor(c echo.Context) error {
+	var start_date, end_date time.Time
+	var order string
+	const shortForm = "2006-01-02"
+	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" {
+		start_date, _ = time.Parse(shortForm, c.QueryParam("start_date"))
+		end_date, _ = time.Parse(shortForm, c.QueryParam("end_date"))
+		order = c.QueryParam("order")
+
+	} else {
+		start_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
+		end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
+		order = "DESC"
+	}
+
+	// if c.QueryParam("end_date") != "" {
+	// 	end_date, _ = time.Parse(shortForm, c.QueryParam("end_date"))
+	// } else {
+	// 	end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
+	// 	start_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
+	// }
+
+	fmt.Println(start_date)
+	fmt.Println(end_date)
+	fmt.Println(order)
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	res, err := repository.GetTodaysVisitor(claims.CompanyId)
+	join_sql := "SELECT * FROM track_visitors LEFT JOIN visitors ON track_visitors.v_id = visitors.id"
+	if claims.UserType == "Admin" {
+		sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.date BETWEEN ? AND ? ORDER BY track_visitors.id %s", join_sql, claims.CompanyId, order)
+		res, err := repository.GetTodaysVisitor(sql, start_date, end_date)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+	sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ? ORDER BY track_visitors.id %s", join_sql, claims.CompanyId, claims.BranchId, order)
+	res, err := repository.GetTodaysVisitor(sql, start_date, end_date)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -417,22 +460,22 @@ func CheckOut(c echo.Context) error {
 	record.VId = visitor.Id
 	res, err := repository.GetVisitor(visitor)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, "failed fetch visitor")
 	}
-	record.VisitorName = res.Name
-	record.VisitorEmail = res.Email
-	record.VisitorPhone = res.Phone
+	record.Name = res.Name
+	record.Email = res.Email
+	record.Phone = res.Phone
 	record.CompanyRepresentating = res.CompanyRepresentating
 	record.CompanyId = res.CompanyId
-	record.VisitorAddress = res.Address
+	record.Address = res.Address
 	track_res, err := repository.GetTrackDetails(res)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, "failed fetch track")
 	}
 	track_res.CheckOut = time.Now().Local().Format("03:04:05 pm")
 	track_res.Status = "left"
 	if err := repository.CheckOut(res, track_res); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, "failed")
 	}
 
 	record.AppointedTo = track_res.AppointedTo
@@ -441,9 +484,9 @@ func CheckOut(c echo.Context) error {
 	record.CheckIn = track_res.CheckIn
 	record.CheckOut = track_res.CheckOut
 
-	if err := repository.CreateRecord(record); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// if err := repository.CreateRecord(record); err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, "failed insert db")
+	// }
 
 	return c.JSON(http.StatusOK, record)
 }

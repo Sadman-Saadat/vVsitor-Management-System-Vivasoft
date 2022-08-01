@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -57,8 +57,17 @@ func Registration(c echo.Context) error {
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
+
+	res_com, err := repository.IsCompanyValid(company.CompanyName, company.SubDomain)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	if res_com != 0 {
+		return c.JSON(http.StatusInternalServerError, "company name or subdomain already exists")
+	}
+
 	res, err := repository.RegisterCompany(company)
-	fmt.Println(res)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

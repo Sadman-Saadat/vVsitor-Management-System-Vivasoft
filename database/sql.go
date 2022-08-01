@@ -2,34 +2,22 @@ package database
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	//"gorm.io/driver/sqlite"
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
+	//"github.com/jinzhu/gorm"
+	//	_ "github.com/jinzhu/gorm/dialects/mysql"
 	//"database/sql"
-	//_ "github.com/mattn/go-sqlite3"
-	//"gorm.io/gorm"
-	"visitor-management-system/config"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/mattn/go-sqlite3"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	//"visitor-management-system/config"
 	"visitor-management-system/model"
 )
 
 var db *gorm.DB
 
-func Connect() {
-	dns := fmt.Sprintf("%s/%s?charset=utf8mb4&parseTime=True", config.GetConfig().SqlUri, config.GetConfig().SqlDb)
-	database, err := gorm.Open("mysql", dns)
-
-	if err != nil {
-		fmt.Println("error connecting to db")
-		panic(err)
-	} else {
-		fmt.Println("connected to db")
-	}
-	db = database
-}
-
 // func Connect() {
-// 	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+// 	dns := fmt.Sprintf("%s/%s?charset=utf8mb4&parseTime=True", config.GetConfig().SqlUri, config.GetConfig().SqlDb)
+// 	database, err := gorm.Open("mysql", dns)
 
 // 	if err != nil {
 // 		fmt.Println("error connecting to db")
@@ -39,6 +27,18 @@ func Connect() {
 // 	}
 // 	db = database
 // }
+
+func Connect() {
+	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+
+	if err != nil {
+		fmt.Println("error connecting to db")
+		panic(err)
+	} else {
+		fmt.Println("connected to db")
+	}
+	db = database
+}
 
 func Migration() {
 	db.AutoMigrate(&model.Company{})

@@ -32,12 +32,20 @@ func CreateBrach(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "you need admin access")
 	}
 
-	err = repository.CreateNewBranch(new_branch)
+	resp, err := repository.IsBranchValid(claims.CompanyId, new_branch.BranchName)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if resp != 0 {
+		return c.JSON(http.StatusInternalServerError, "branch already exists")
+	}
+
+	res, err := repository.CreateNewBranch(new_branch)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, new_branch)
+	return c.JSON(http.StatusOK, res)
 }
 
 func UpadateBrach(c echo.Context) error {

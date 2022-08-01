@@ -11,7 +11,7 @@ func Visitor(e *echo.Echo) {
 	sub.Use(middleware.Authenticate)
 	sub.POST("/register", controller.CreateVisitor)
 	sub.GET("/get-all", controller.GetAllVisitor)
-	sub.GET("/get-by-id", controller.GetVisitorDetails)
+	sub.GET("/details/:id", controller.GetVisitorDetails)
 	sub.PATCH("/update", controller.UpdateVisitor)
 	sub.GET("/", controller.GetVisitor)
 	sub.GET("/search/:phone", controller.SearchVisitor)
