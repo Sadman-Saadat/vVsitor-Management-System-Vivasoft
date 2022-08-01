@@ -2,14 +2,15 @@ package database
 
 import (
 	"fmt"
-	//"github.com/jinzhu/gorm"
-	//	_ "github.com/jinzhu/gorm/dialects/mysql"
+	// "github.com/jinzhu/gorm"
+	// _ "github.com/jinzhu/gorm/dialects/mysql"
+	// "visitor-management-system/config"
 	//"database/sql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	//"visitor-management-system/config"
+
 	"visitor-management-system/model"
 )
 
@@ -48,9 +49,10 @@ func Migration() {
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.AutoMigrate(&model.Record{})
-	//db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
-	//db.Model(&model.Subscription{}).AddForeignKey("company_id", "companies(id)", "RESTRICT", "RESTRICT")
-	//db.Model(&model.User{}).AddForeignKey("branch_id", "branchs(id)", "RESTRICT", "RESTRICT")
+	db.AutoMigrate(&model.Setting{})
+	// db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
+	// db.Model(&model.Subscription{}).AddForeignKey("company_id", "companies(id)", "RESTRICT", "RESTRICT")
+	// db.Model(&model.User{}).AddForeignKey("branch_id", "branchs(id)", "RESTRICT", "RESTRICT")
 
 }
 func GetDB() *gorm.DB {

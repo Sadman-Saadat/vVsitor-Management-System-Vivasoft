@@ -69,6 +69,14 @@ func CreateVisitor(c echo.Context) error {
 	visitor.CompanyId = claims.CompanyId
 	file, err := c.FormFile("image")
 
+	settings, err := repository.Setting(claims.CompanyId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if settings.Image == "yes" && file == nil || settings.Email == "yes" && visitor.Email == "" {
+		return c.JSON(http.StatusBadRequest, "image/email is mandatory")
+	}
+
 	if file != nil {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
@@ -303,13 +311,21 @@ func CheckIn(c echo.Context) error {
 
 	res, str, err := utils.ValidateSubscription(claims.CompanyId)
 	if res != true || err != nil {
-		return c.JSON(http.StatusOK, str)
+		return c.JSON(http.StatusUnauthorized, str)
 	}
 
 	info.CompanyId = claims.CompanyId
 	info.BranchId = claims.BranchId
 	//save image
 	file, err := c.FormFile("image")
+
+	settings, err := repository.Setting(claims.CompanyId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if settings.Image == "yes" && file == nil {
+		return c.JSON(http.StatusBadRequest, "image is mandatory")
+	}
 
 	if file != nil {
 		if err != nil {
@@ -399,16 +415,6 @@ func GetTodaysVisitor(c echo.Context) error {
 		order = "DESC"
 	}
 
-	// if c.QueryParam("end_date") != "" {
-	// 	end_date, _ = time.Parse(shortForm, c.QueryParam("end_date"))
-	// } else {
-	// 	end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
-	// 	start_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
-	// }
-
-	fmt.Println(start_date)
-	fmt.Println(end_date)
-	fmt.Println(order)
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])

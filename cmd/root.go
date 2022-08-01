@@ -49,6 +49,7 @@ func Execute() {
 	routes.User(e)
 	routes.Visitor(e)
 	routes.Branch(e)
+	routes.Settings(e)
 
 	dg := e.Group("docs")
 	dg.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))
