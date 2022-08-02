@@ -11,7 +11,11 @@ func CreateVisitor(visitor *model.Visitor) error {
 	return err
 }
 
-func GetAllVisitor(id int) (visitor []*model.Visitor, err error) {
+func GetAllVisitor(id int, branch_id int) (visitor []*model.Visitor, err error) {
+	if branch_id != 0 {
+		err = db.Where("company_id = ? AND branch_id =?", id, branch_id).Preload("TrackVisitors").Find(&visitor).Error
+		return
+	}
 	err = db.Where("company_id = ?", id).Preload("TrackVisitors").Find(&visitor).Error
 	return
 }
@@ -68,7 +72,7 @@ func CountPresentVisitor(id int) (int64, error) {
 	return count, err
 }
 
-func GetTodaysVisitor(sql string, startdate time.Time, enddate time.Time) ([]*model.Record, error) {
+func GetTodaysVisitor(sql string, startdate time.Time, enddate time.Time, status string) ([]*model.Record, error) {
 	var visitor []*model.Record
 	// val := "Arrived"
 	// t := time.Now()
@@ -76,31 +80,35 @@ func GetTodaysVisitor(sql string, startdate time.Time, enddate time.Time) ([]*mo
 	// //t, err := time.Parse("2020-10-30 24:59:59", today)
 	// // t := time.Date(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second)
 	// t2 := t.Add(time.Hour * time.Duration(24))
+	if status != "" {
+		err := db.Raw(sql, startdate, enddate, status).Scan(&visitor).Error
+		return visitor, err
+	}
 	err := db.Raw(sql, startdate, enddate).Scan(&visitor).Error
 	// err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.company_id =?  AND track_visitors.date BETWEEN ? AND ? AND track_visitors.status = ?", id, t, t2, val).Preload("TrackVisitors", "date = ? ", t).Find(&visitor).Error
 
 	return visitor, err
 }
 
-func GetTrackDetails(visitor *model.Visitor) (model.TrackVisitor, error) {
+func GetTrackDetails(c_id int, id int) (model.TrackVisitor, error) {
 	var track model.TrackVisitor
 	times := time.Now().Local().Format("2006-01-02")
 	fmt.Println(times)
 	const shortForm = "2006-01-02"
 	t, _ := time.Parse(shortForm, times)
-	err := db.Where(" date=? AND company_id = ? AND v_id=?", t, visitor.CompanyId, visitor.Id).Find(&track).Error
+	err := db.Where(" date=? AND company_id = ? AND id=?", t, c_id, id).Find(&track).Error
 	return track, err
 
 }
 
-func CheckOut(visitor *model.Visitor, track model.TrackVisitor) error {
+func CheckOut(id int, c_id int, track model.TrackVisitor) error {
 
 	times := time.Now().Local().Format("2006-01-02")
 	fmt.Println(times)
 	const shortForm = "2006-01-02"
 	today, _ := time.Parse(shortForm, times)
 
-	err := db.Where("company_id = ? AND v_id =? AND date=?", visitor.CompanyId, visitor.Id, today).Save(&track).Error
+	err := db.Where("id =? AND company_id = ?  AND date=?", id, c_id, today).Save(&track).Error
 	return err
 }
 

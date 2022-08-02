@@ -17,6 +17,7 @@ type Record struct {
 	AppointedToPhone      string
 	LuggageToken          string
 	CompanyRepresentating string
+	Status                string
 	CompanyId             int
 	BranchId              int
 	Date                  time.Time

@@ -73,7 +73,7 @@ func CreateVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	if settings.Image == "yes" && file == nil || settings.Email == "yes" && visitor.Email == "" {
+	if settings.Image == true && file == nil || settings.Email == true && visitor.Email == "" {
 		return c.JSON(http.StatusBadRequest, "image/email is mandatory")
 	}
 
@@ -142,13 +142,18 @@ func CreateVisitor(c echo.Context) error {
 func GetAllVisitor(c echo.Context) error {
 	// var visitor = new(model.Visitor)
 	// c.Bind(visitor)
+	branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	res, err := repository.GetAllVisitor(claims.CompanyId)
+	if claims.UserType == "Official" {
+		return c.JSON(http.StatusBadRequest, "not authorized")
+	}
+
+	res, err := repository.GetAllVisitor(claims.CompanyId, branch_id)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
@@ -328,7 +333,7 @@ func CheckIn(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	if settings.Image == "yes" && file == nil {
+	if settings.Image == true && file == nil {
 		return c.JSON(http.StatusBadRequest, "image is mandatory")
 	}
 
@@ -414,18 +419,22 @@ func CheckIn(c echo.Context) error {
 
 func GetTodaysVisitor(c echo.Context) error {
 	var start_date, end_date time.Time
-	var order string
+	var order, status string
+	var branch_id int
 	const shortForm = "2006-01-02"
-	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" {
+	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" || c.QueryParam("status") != "" || c.QueryParam("branch_id") != "" {
 		start_date, _ = time.Parse(shortForm, c.QueryParam("start_date"))
 		end_date, _ = time.Parse(shortForm, c.QueryParam("end_date"))
 		order = c.QueryParam("order")
+		status = c.QueryParam("status")
+		branch_id, _ = strconv.Atoi(c.QueryParam("branch_id"))
 
 	} else {
 		start_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
 		end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
 		order = "DESC"
 	}
+	fmt.Println(status)
 
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -433,17 +442,28 @@ func GetTodaysVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	join_sql := "SELECT * FROM track_visitors LEFT JOIN visitors ON track_visitors.v_id = visitors.id"
+	join_sql := "SELECT track_visitors.*, visitors.name,visitors.email,visitors.phone,visitors.address,visitors.image_name,visitors.image_path,visitors.company_representating FROM track_visitors LEFT JOIN visitors ON track_visitors.v_id = visitors.id"
 	if claims.UserType == "Admin" {
-		sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.date BETWEEN ? AND ? ORDER BY track_visitors.id %s", join_sql, claims.CompanyId, order)
-		res, err := repository.GetTodaysVisitor(sql, start_date, end_date)
+		sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.date BETWEEN ? AND ?", join_sql, claims.CompanyId)
+		if status != "" {
+			sql = fmt.Sprintf("%s AND track_visitors.status = ?", sql)
+		}
+		if branch_id != 0 {
+			sql = fmt.Sprintf("%s AND track_visitors.branch_id = %d", sql, branch_id)
+		}
+		sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s", sql, order)
+		res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, res)
 	}
-	sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ? ORDER BY track_visitors.id %s", join_sql, claims.CompanyId, claims.BranchId, order)
-	res, err := repository.GetTodaysVisitor(sql, start_date, end_date)
+	sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ?", join_sql, claims.CompanyId, claims.BranchId)
+	if status != "" {
+		sql = fmt.Sprintf("%s AND track_visitors.status = ?", sql)
+	}
+	sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s", sql, order)
+	res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -472,39 +492,36 @@ func GetTodaysVisitor(c echo.Context) error {
 //          name: bearer
 //          in: header
 func CheckOut(c echo.Context) error {
-	var visitor = new(model.Visitor)
-	var record = new(model.Record)
-	visitor.Id, _ = strconv.Atoi(c.Param("id"))
-	record.VId = visitor.Id
-	res, err := repository.GetVisitor(visitor)
+	//var visitor = new(model.Visitor)
+	//var record = new(model.TrackVisitor)
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "failed fetch visitor")
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	record.Name = res.Name
-	record.Email = res.Email
-	record.Phone = res.Phone
-	record.CompanyRepresentating = res.CompanyRepresentating
-	record.CompanyId = res.CompanyId
-	record.Address = res.Address
-	track_res, err := repository.GetTrackDetails(res)
+	// //record.VId = visitor.Id
+	// res, err := repository.GetVisitor(visitor)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, "failed fetch visitor")
+	// }
+
+	track_res, err := repository.GetTrackDetails(claims.CompanyId, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "failed fetch track")
 	}
+
 	track_res.CheckOut = time.Now().Local().Format("03:04:05 pm")
 	track_res.Status = "left"
-	if err := repository.CheckOut(res, track_res); err != nil {
+	if err := repository.CheckOut(id, claims.CompanyId, track_res); err != nil {
 		return c.JSON(http.StatusInternalServerError, "failed")
 	}
-
-	record.AppointedTo = track_res.AppointedTo
-	record.LuggageToken = track_res.LuggageToken
-	record.Date = track_res.Date
-	record.CheckIn = track_res.CheckIn
-	record.CheckOut = track_res.CheckOut
 
 	// if err := repository.CreateRecord(record); err != nil {
 	// 	return c.JSON(http.StatusInternalServerError, "failed insert db")
 	// }
 
-	return c.JSON(http.StatusOK, record)
+	return c.JSON(http.StatusOK, "checkout successful")
 }
