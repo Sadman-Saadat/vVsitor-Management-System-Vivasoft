@@ -20,6 +20,7 @@ type Record struct {
 	Status                string
 	CompanyId             int
 	BranchId              int
+	BranchName            string
 	Date                  time.Time
 	CheckIn               string
 	CheckOut              string

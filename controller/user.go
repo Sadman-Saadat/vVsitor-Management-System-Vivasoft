@@ -92,59 +92,65 @@ func Login(c echo.Context) (err error) {
 //          in: header
 
 func CreateUser(c echo.Context) error {
-	var user = new(model.User)
+	//var user = new(model.User)
 	var new_user = new(types.User)
 
 	if err := c.Bind(new_user); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
 	}
 
-	auth_token := c.Request().Header.Get("Authorization")
-	split_token := strings.Split(auth_token, "Bearer ")
-	claims, err := utils.DecodeToken(split_token[1])
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
-	}
+	// auth_token := c.Request().Header.Get("Authorization")
+	// split_token := strings.Split(auth_token, "Bearer ")
+	// claims, err := utils.DecodeToken(split_token[1])
+	// if err != nil {
+	// 	return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	// }
 
 	// res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchId)
 	// if err != nil {
 	// 	return c.JSON(http.StatusInternalServerError, err.Error())
 	// }
 
-	user.BranchId = new_user.BranchId
-	//user.Branch.BranchName = res.BranchName
-	user.Name = new_user.Name
-	user.Email = new_user.Email
-	user.Password = new_user.Password
-	user.UserType = "Official"
-	user.SubDomain = claims.SubDomain
-	//fmt.Println(user.SubDomain)
-	//user.Branch.Address = res.Address
-	user.CompanyId = claims.CompanyId
-	password, err := utils.GenerateRandomPassword()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// user.BranchId = new_user.BranchId
+	// //user.Branch.BranchName = res.BranchName
+	// user.Name = new_user.Name
+	// user.Email = new_user.Email
+	// user.Password = new_user.Password
+	// user.UserType = "Official"
+	// user.SubDomain = claims.SubDomain
+	// //fmt.Println(user.SubDomain)
+	// //user.Branch.Address = res.Address
+	// user.CompanyId = claims.CompanyId
+	// password, err := utils.GenerateRandomPassword()
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
 
-	user.Password, err = utils.Encrypt(password)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	if validationerr := validate.Struct(user); validationerr != nil {
-		return c.JSON(http.StatusBadRequest, validationerr.Error())
-	}
+	// user.Password, err = utils.Encrypt(password)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
+	// if validationerr := validate.Struct(user); validationerr != nil {
+	// 	return c.JSON(http.StatusBadRequest, validationerr.Error())
+	// }
+	// res, err := repository.GetUserByEmail(user.Email, claims.SubDomain)
+	// if err != nil || res.Email != "" {
+	// 	return c.JSON(http.StatusInternalServerError, "already email exists")
+	// }
 
-	if claims.UserType == "Admin" {
-		if err := repository.CreateUser(user); err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-	}
+	// if claims.UserType == "Admin" {
+	// 	if err := repository.CreateUser(user); err != nil {
+	// 		return c.JSON(http.StatusInternalServerError, err.Error())
+	// 	}
+	// } else {
+	// 	return c.JSON(http.StatusUnauthorized, "need admin access")
+	// }
 
-	if err := utils.SendEmail(user, password); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// if err := utils.SendEmail(user, password); err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, new_user)
 }
 
 // swagger:route GET /user/get-all USER AllUser
@@ -251,7 +257,7 @@ func DeleteOfficialUser(c echo.Context) error {
 
 func ChangePassword(c echo.Context) error {
 	var password = new(types.Password)
-	sub_domain := c.QueryParam("subdomain")
+	//sub_domain := c.QueryParam("sub_domain")
 
 	if err := c.Bind(password); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
@@ -268,7 +274,7 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	user, err := repository.GetUserByEmail(claims.Email, sub_domain)
+	user, err := repository.GetUserByEmail(claims.Email, claims.SubDomain)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, consts.UnAuthorized)
 	}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"time"
 	"visitor-management-system/model"
 )
@@ -11,12 +12,8 @@ func CreateVisitor(visitor *model.Visitor) error {
 	return err
 }
 
-func GetAllVisitor(id int, branch_id int) (visitor []*model.Visitor, err error) {
-	if branch_id != 0 {
-		err = db.Where("company_id = ? AND branch_id =?", id, branch_id).Preload("TrackVisitors").Find(&visitor).Error
-		return
-	}
-	err = db.Where("company_id = ?", id).Preload("TrackVisitors").Find(&visitor).Error
+func GetAllVisitor(sql string) (visitor []*model.Visitor, err error) {
+	err = db.Raw(sql).Scan(&visitor).Error
 	return
 }
 
@@ -26,7 +23,9 @@ func GetVisitor(visitor *model.Visitor) (*model.Visitor, error) {
 }
 
 func GetVisitorDetails(visitor *model.Visitor, id int) (*model.Visitor, error) {
-	err := db.Where("company_id = ? AND id = ?", id, visitor.Id).Preload("TrackVisitors").Find(&visitor).Error
+	err := db.Where("company_id = ? AND id = ?", id, visitor.Id).Preload("TrackVisitors", func(db *gorm.DB) *gorm.DB {
+		return db.Order("track_visitors.id DESC")
+	}).Find(&visitor).Error
 	return visitor, err
 }
 

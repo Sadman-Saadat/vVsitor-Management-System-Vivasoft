@@ -5,7 +5,7 @@ type User struct {
 	Password   string `json:"password" validate:"required"`
 	BranchName string `json:"branch_name"`
 	Name       string `json:"name"`
-	BranchId   int    `json:"branch_id"`
+	BranchId   []int  `json:"branch_id"`
 }
 
 type Password struct {

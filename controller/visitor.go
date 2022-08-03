@@ -142,7 +142,17 @@ func CreateVisitor(c echo.Context) error {
 func GetAllVisitor(c echo.Context) error {
 	// var visitor = new(model.Visitor)
 	// c.Bind(visitor)
-	branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
+	//branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
+	var page, limit, offset int
+	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
+		page = 1
+		limit = 3
+	} else {
+		page, _ = strconv.Atoi(c.QueryParam("page"))
+		limit, _ = strconv.Atoi(c.QueryParam("limit"))
+	}
+
+	offset = (page - 1) * limit
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
@@ -150,13 +160,19 @@ func GetAllVisitor(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 	if claims.UserType == "Official" {
-		return c.JSON(http.StatusBadRequest, "not authorized")
+		sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d AND visitors.branch_id IN (%d) LIMIT %d OFFSET %d", claims.CompanyId, claims.BranchId, limit, offset)
+		res, err := repository.GetAllVisitor(sql)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusOK, res)
 	}
-
-	res, err := repository.GetAllVisitor(claims.CompanyId, branch_id)
+	sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d  LIMIT %d OFFSET %d", claims.CompanyId, limit, offset)
+	res, err := repository.GetAllVisitor(sql)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
+
 	return c.JSON(http.StatusOK, res)
 }
 

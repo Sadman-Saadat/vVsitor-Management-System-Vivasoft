@@ -55,6 +55,8 @@ func Registration(c echo.Context) error {
 		company.Subscription.Subscription_end = time.Now().Local().Add(time.Hour * time.Duration(720))
 
 	}
+
+	company.SubDomain = company.CompanyName[0:4]
 	//validate info
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
@@ -74,7 +76,7 @@ func Registration(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	branch.BranchName = "main"
+	branch.BranchName = "Head Office"
 	branch.CompanyId = res.Id
 	branch.Address = company.Address
 	branchdetails, err := repository.CreateNewBranch(branch)
