@@ -42,6 +42,7 @@ func Registration(c echo.Context) error {
 	var admin = new(model.User)
 	var branch = new(model.Branch)
 	var settings = new(model.Setting)
+	var relation = new(model.UserBranchRelation)
 	//bind
 	if err := c.Bind(company); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -100,13 +101,13 @@ func Registration(c echo.Context) error {
 	admin.Email = company.SubscriberEmail
 	admin.UserType = "Admin"
 	admin.SubDomain = company.SubDomain
-	admin.BranchId = branchdetails.Id
+	//admin.BranchId = branchdetails.Id
 
 	if validationerr := validate.Struct(admin); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
 	}
-
-	if err := repository.CreateUser(admin); err != nil {
+	admin_user, err := repository.CreateUser(admin)
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -114,7 +115,14 @@ func Registration(c echo.Context) error {
 	settings.Email = true
 	settings.Image = true
 
+	relation.BranchId = branchdetails.Id
+	relation.CompanyId = admin_user.CompanyId
+	relation.UserId = admin_user.Id
 	if _, err := repository.CreateNewSettings(settings); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	if err := repository.CreateNewUserBranchRelation(relation); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

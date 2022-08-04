@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-
+	gormlogger "gorm.io/gorm/logger"
 	"visitor-management-system/model"
 )
 
@@ -30,7 +30,12 @@ var db *gorm.DB
 // }
 
 func Connect() {
-	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	logMode := gormlogger.Info
+
+	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{
+		PrepareStmt: true,
+		Logger:      gormlogger.Default.LogMode(logMode),
+	})
 
 	if err != nil {
 		fmt.Println("error connecting to db")
@@ -50,6 +55,7 @@ func Migration() {
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.AutoMigrate(&model.Record{})
 	db.AutoMigrate(&model.Setting{})
+	db.AutoMigrate(&model.UserBranchRelation{})
 	// db.Model(&model.TrackVisitor{}).AddForeignKey("v_id", "visitors(id)", "RESTRICT", "RESTRICT")
 	// db.Model(&model.Subscription{}).AddForeignKey("company_id", "companies(id)", "RESTRICT", "RESTRICT")
 	// db.Model(&model.User{}).AddForeignKey("branch_id", "branchs(id)", "RESTRICT", "RESTRICT")

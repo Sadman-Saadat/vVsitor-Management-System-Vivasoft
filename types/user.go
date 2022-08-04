@@ -1,5 +1,9 @@
 package types
 
+import (
+	"visitor-management-system/model"
+)
+
 type User struct {
 	Email      string `json:"email" validate:"required,email"`
 	Password   string `json:"password" validate:"required"`
@@ -16,6 +20,7 @@ type Password struct {
 type Token struct {
 	User_Token        string
 	User_Refreshtoken string
+	Branch            *[]model.Branch
 }
 
 type UserDetails struct {
@@ -24,8 +29,30 @@ type UserDetails struct {
 	Email      string `json:"email" validate:"required,email"`
 	SubDomain  string
 	CompanyId  int
-	BranchId   int
 	UserType   string `json:"user_type" validate:"eq=Admin|eq=Official"`
 	BranchName string `json:"branch_name" validate:"required"`
-	Address    string `json:"address"`
+	//Address    string    `json:"address"`
+}
+
+type BranchIds struct {
+	BranchId []int64
+}
+
+type AllUser struct {
+	Id              int    `gorm:"primary_key;AUTO_INCREMENT"`
+	Name            string `json:"name" validate:"required,min=2,max=30"`
+	Email           string `json:"email" validate:"required,email"`
+	SubDomain       string
+	CompanyId       int
+	BranchId        int
+	UserType        string `json:"user_type" validate:"eq=Admin|eq=Official"`
+	Password        string
+	AllocatedBranch []Branches
+}
+
+type Branches struct {
+	Id         int
+	CompanyId  int
+	BranchName string
+	Address    string
 }

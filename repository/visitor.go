@@ -34,21 +34,21 @@ func UpdateVisitor(visitor *model.Visitor, id int) error {
 	return err
 }
 
-func Search(visitor *model.Visitor, id int) ([]*model.Visitor, error) {
+func Search(visitor *model.Visitor, id int, search string) ([]*model.Visitor, error) {
 	var list []*model.Visitor
-	phone := fmt.Sprintf(visitor.Phone)
-	phone += fmt.Sprintf("%s", "%")
-	fmt.Println(phone)
-	err := db.Where("phone LIKE ? AND company_id =?", phone, id).Find(&list).Error
+	search = fmt.Sprintf(search)
+	search += fmt.Sprintf("%s", "%")
+	fmt.Println(search)
+	err := db.Where("phone LIKE ? OR name LIKE ? OR email LIKE ? AND company_id =?", search, search, search, id).Find(&list).Error
 	return list, err
 }
 
-func SearchForSpecificBranch(visitor *model.Visitor, company_id int, branch_id int) ([]*model.Visitor, error) {
+func SearchForSpecificBranch(visitor *model.Visitor, company_id int, branch_id int, search string) ([]*model.Visitor, error) {
 	var list []*model.Visitor
-	phone := fmt.Sprintf(visitor.Phone)
-	phone += fmt.Sprintf("%s", "%")
-	fmt.Println(phone)
-	err := db.Where("phone LIKE ? AND company_id =? AND branch_id = ?", phone, company_id, branch_id).Find(&list).Error
+	search = fmt.Sprintf(search)
+	search += fmt.Sprintf("%s", "%")
+	fmt.Println(search)
+	err := db.Where("phone LIKE ? OR name LIKE ? OR email LIKE ? AND company_id =? AND branch_id = ?", search, search, search, company_id, branch_id).Find(&list).Error
 	return list, err
 
 }

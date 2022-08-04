@@ -46,6 +46,9 @@ func CreateVisitor(c echo.Context) error {
 	visitor.CompanyRepresentating = c.FormValue("company_rep")
 	visitor.Email = c.FormValue("email")
 	visitor.Phone = c.FormValue("phone")
+	id, _ := strconv.Atoi(c.FormValue("branch_id"))
+	fmt.Println(visitor.BranchId)
+	visitor.BranchId = id
 
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -53,12 +56,16 @@ func CreateVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	visitor.BranchId = claims.BranchId
-
-	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId, claims.BranchId)
+	//visitor.BranchId = claims.BranchId
+	resp, err := repository.GetBranchDetails(claims.CompanyId, id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	visitor.BranchName = resp.BranchName
+	is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId, visitor.BranchId)
 
 	if is_registered != true || err != nil {
-		return c.JSON(http.StatusBadRequest, "user already registered")
+		return c.JSON(http.StatusBadRequest, "visitor already registered")
 	}
 
 	res, str, err := utils.ValidateSubscription(claims.CompanyId)
@@ -272,7 +279,8 @@ func GetVisitor(c echo.Context) error {
 
 func SearchVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
-	visitor.Phone = c.Param("phone")
+	search := c.QueryParam("search")
+	branch_id, _ := strconv.Atoi(c.QueryParam("search"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
@@ -280,13 +288,13 @@ func SearchVisitor(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 	if claims.UserType == "Admin" {
-		res, err := repository.Search(visitor, claims.CompanyId)
+		res, err := repository.Search(visitor, claims.CompanyId, search)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, res)
 	}
-	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, claims.BranchId)
+	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, branch_id, search)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
@@ -327,6 +335,7 @@ func CheckIn(c echo.Context) error {
 	info.AppointedTo = c.FormValue("appointed_to")
 	info.AppointedToPhone = c.FormValue("appointed_to_phone")
 	info.Status = "Arrived"
+	info.BranchId, _ = strconv.Atoi(c.FormValue("branch_id"))
 	//get company id from token
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -341,7 +350,7 @@ func CheckIn(c echo.Context) error {
 	}
 
 	info.CompanyId = claims.CompanyId
-	info.BranchId = claims.BranchId
+	//info.BranchId = claims.BranchId
 	//save image
 	file, err := c.FormFile("image")
 
@@ -398,7 +407,7 @@ func CheckIn(c echo.Context) error {
 
 	info.CheckIn = time.Now().Local().Format("03:04:05 pm")
 
-	resdetails, err := repository.GetBranchDetails(claims.CompanyId, claims.BranchId)
+	resdetails, err := repository.GetBranchDetails(claims.CompanyId, info.BranchId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -450,7 +459,16 @@ func GetTodaysVisitor(c echo.Context) error {
 		end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
 		order = "DESC"
 	}
-	fmt.Println(status)
+	var page, limit, offset int
+	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
+		page = 1
+		limit = 3
+	} else {
+		page, _ = strconv.Atoi(c.QueryParam("page"))
+		limit, _ = strconv.Atoi(c.QueryParam("limit"))
+	}
+
+	offset = (page - 1) * limit
 
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -467,7 +485,7 @@ func GetTodaysVisitor(c echo.Context) error {
 		if branch_id != 0 {
 			sql = fmt.Sprintf("%s AND track_visitors.branch_id = %d", sql, branch_id)
 		}
-		sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s", sql, order)
+		sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s LIMIT %d OFFSET %d", sql, order, limit, offset)
 		res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -478,7 +496,7 @@ func GetTodaysVisitor(c echo.Context) error {
 	if status != "" {
 		sql = fmt.Sprintf("%s AND track_visitors.status = ?", sql)
 	}
-	sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s", sql, order)
+	sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s LIMIT %d OFFSET %d", sql, order, page, offset)
 	res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

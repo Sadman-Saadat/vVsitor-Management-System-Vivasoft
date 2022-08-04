@@ -1,14 +1,14 @@
 package repository
 
 import (
-	//"fmt"
+	"fmt"
 	"visitor-management-system/model"
 	"visitor-management-system/types"
 )
 
-func CreateUser(user *model.User) error {
+func CreateUser(user *model.User) (*model.User, error) {
 	err := db.Create(&user).Error
-	return err
+	return user, err
 }
 
 func GetAllUsers(id int) ([]types.UserDetails, error) {
@@ -19,9 +19,13 @@ func GetAllUsers(id int) ([]types.UserDetails, error) {
 	return official_users, err
 }
 
-func DeleteOfficialUser(user *model.User) error {
-	err := db.Delete(user).Error
-	return err
+func DeleteOfficialUser(id int) error {
+	//sql := fmt.Sprintf("DELETE FROM users WHERE users.id = %d", id)
+	var user model.User
+	user.Id = id
+	err := db.Delete(&user)
+	fmt.Println(err.RowsAffected)
+	return nil
 }
 
 func UpdateOfficialUser(user *model.User) error {
@@ -37,8 +41,10 @@ func GetUserByEmail(email string, subdomain string) (*model.User, error) {
 }
 
 func GetBranchDetails(id int, bid int) (*model.Branch, error) {
-
 	var branch model.Branch
-	err := db.Model(&branch).Where("company_id = ? AND id = ?", id, bid).Find(&branch).Error
+	branch.Id = bid
+	fmt.Println(bid)
+	fmt.Println(branch)
+	err := db.Find(&branch).Error
 	return &branch, err
 }
