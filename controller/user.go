@@ -54,6 +54,7 @@ func Login(c echo.Context) (err error) {
 	if model_user.Email == "" || err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
+	tokens.UserName = model_user.Name
 
 	if err := utils.VerifyPassword(user.Password, model_user.Password); err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)

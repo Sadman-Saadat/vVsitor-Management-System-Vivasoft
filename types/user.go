@@ -21,6 +21,7 @@ type Token struct {
 	User_Token        string
 	User_Refreshtoken string
 	Branch            *[]model.Branch
+	UserName          string
 }
 
 type UserDetails struct {
@@ -35,7 +36,7 @@ type UserDetails struct {
 }
 
 type BranchIds struct {
-	BranchId []int64
+	BranchId []int64 `json:"branch_ids"`
 }
 
 type AllUser struct {
@@ -55,4 +56,14 @@ type Branches struct {
 	CompanyId  int
 	BranchName string
 	Address    string
+}
+
+type PaginationGetAllVisitor struct {
+	TotalCount int64
+	Items      []*model.Visitor
+}
+
+type PaginationGetAllRecord struct {
+	TotalCount int64
+	Items      []*model.Record
 }
