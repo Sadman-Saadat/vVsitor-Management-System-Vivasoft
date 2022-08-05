@@ -10,8 +10,8 @@ func CreateNewBranch(branch *model.Branch) (*model.Branch, error) {
 	return branch, err
 }
 
-func BranchList(id int) ([]model.Branch, error) {
-	var all_branch []model.Branch
+func BranchList(id int) (*[]model.Branch, error) {
+	var all_branch *[]model.Branch
 	err := db.Where("company_id = ?", id).Find(&all_branch).Error
 	return all_branch, err
 }

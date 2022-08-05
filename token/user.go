@@ -7,7 +7,7 @@ import (
 	"visitor-management-system/types"
 )
 
-func GenerateUserTokens(email string, id int, usertype string, company_id int, branch_id int, sub_domain string) (signed_token string, signed_refreshtoken string, err error) {
+func GenerateUserTokens(email string, id int, usertype string, company_id int, branch_id int, sub_domain string, name string) (signed_token string, signed_refreshtoken string, err error) {
 
 	claims := &types.SignedUserDetails{
 		Email:     email,
@@ -16,6 +16,7 @@ func GenerateUserTokens(email string, id int, usertype string, company_id int, b
 		CompanyId: company_id,
 		SubDomain: sub_domain,
 		BranchId:  branch_id,
+		Name:      name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
 		},

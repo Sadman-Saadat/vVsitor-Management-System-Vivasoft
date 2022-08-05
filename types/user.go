@@ -21,7 +21,6 @@ type Token struct {
 	User_Token        string
 	User_Refreshtoken string
 	Branch            *[]model.Branch
-	UserName          string
 }
 
 type UserDetails struct {
@@ -81,4 +80,14 @@ type Mastertoken struct {
 type PackageDetails struct {
 	PackageType string `json:"package_type" validate:"required"`
 	Days        string `json:"days" validate:"required"`
+}
+
+type PaginationGetAllCompany struct {
+	TotalCount int64
+	Items      []*model.Company
+}
+
+type PaginationGetAllPackage struct {
+	TotalCount int64
+	Items      []*model.Package
 }

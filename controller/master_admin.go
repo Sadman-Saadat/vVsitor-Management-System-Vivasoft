@@ -62,7 +62,7 @@ func MasterLogin(c echo.Context) error {
 	if err != nil || res.Email == "" {
 		return c.JSON(http.StatusUnauthorized, "not a master admin")
 	}
-	token, refresh_token, err := token.GenerateUserTokens(res.Email, res.Id, res.UserType, 0, 0, "")
+	token, refresh_token, err := token.GenerateUserTokens(res.Email, res.Id, res.UserType, 0, 0, "", res.Name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -103,9 +103,52 @@ func CreatePackage(c echo.Context) error {
 }
 
 func CompanyList(c echo.Context) error {
-	return c.JSON(http.StatusOK, "company list")
+	var pagination = new(types.PaginationGetAllCompany)
+	var search string
+	var page, limit, offset int
+	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
+		page = 1
+		limit = 3
+	} else {
+		page, _ = strconv.Atoi(c.QueryParam("page"))
+		limit, _ = strconv.Atoi(c.QueryParam("limit"))
+	}
+	if c.QueryParam("search") != "" {
+		search = c.QueryParam("search")
+	}
+
+	offset = (page - 1) * limit
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
+
+	res, count, err := repository.GetCompanyList(limit, offset, search)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+	pagination.Items = res
+	pagination.TotalCount = count
+	return c.JSON(http.StatusOK, pagination)
 }
 
 func Packagelist(c echo.Context) error {
-	return c.JSON(http.StatusOK, "package list")
+	//var pagination = new(types.PaginationGetAllPackage)
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
+
+	res, err := repository.GetPackageList()
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, res)
 }

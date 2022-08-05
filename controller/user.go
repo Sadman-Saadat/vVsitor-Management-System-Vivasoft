@@ -54,30 +54,35 @@ func Login(c echo.Context) (err error) {
 	if model_user.Email == "" || err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	tokens.UserName = model_user.Name
 
 	if err := utils.VerifyPassword(user.Password, model_user.Password); err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId, model_user.BranchId, model_user.SubDomain)
+	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId, model_user.BranchId, model_user.SubDomain, model_user.Name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	tokens.User_Token = token
 	tokens.User_Refreshtoken = refresh_token
+	if model_user.UserType == "Admin" {
+		branch_details, err := repository.BranchList(model_user.CompanyId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		tokens.Branch = branch_details
+		return c.JSON(http.StatusOK, tokens)
+	}
 	branch_ids, err := repository.GetBranchRelation(model_user.Id, model_user.CompanyId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	fmt.Println(branch_ids)
 	branch_details, err := repository.GetBranchList(branch_ids, model_user.CompanyId)
-	fmt.Println(branch_details)
-
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
 	tokens.Branch = branch_details
 	return c.JSON(http.StatusOK, tokens)
 }
