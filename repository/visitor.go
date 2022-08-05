@@ -18,14 +18,16 @@ func GetAllVisitor(sql string) (visitor []*model.Visitor, err error) {
 	return
 }
 
-func GetAllVisitorSpecific(sql string, search string) (visitor []*model.Visitor, err error) {
+func GetAllVisitorSpecific(company_id int, branch_id int, search string, limit int, offset int) (visitor []*model.Visitor, count int64, err error) {
 	//search += fmt.Sprintf("%s", "%")
+	dbmodel := db.Model(&model.Visitor{}).Select("*")
 	if search != "" {
-		err = db.Raw(sql, search, search, search).Scan(&visitor).Error
-		return
+		search += fmt.Sprintf("%s", "%")
+		dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)
 
 	}
-	err = db.Raw(sql).Scan(&visitor).Error
+	err = dbmodel.Count(&count).Error
+	err = dbmodel.Limit(limit).Offset(offset).Scan(&visitor).Error
 	return
 }
 
@@ -82,17 +84,25 @@ func CountPresentVisitor(id int) (int64, error) {
 	return count, err
 }
 
-func GetTodaysVisitor(company_id int, branch_id int, startdate time.Time, enddate time.Time, status string, search string, order string, offset int, limit int) ([]*model.Record, int64, error) {
+func GetTodaysVisitor(company_id int, branch_id int, startdate time.Time, enddate time.Time, status string, search string, order string, offset int, limit int, frequent bool) ([]*model.Record, int64, error) {
 	var visitor []*model.Record
 	var count int64
-	search += fmt.Sprintf("%s", "%")
+
 	fmt.Println(limit)
 	fmt.Println(offset)
 	dbmodel := db.Model(&model.TrackVisitor{}).Select("track_visitors.*,visitors.name,visitors.email,visitors.phone,visitors.address,visitors.image_name,visitors.image_path,visitors.company_representating").Joins("left join visitors on visitors.id = track_visitors.v_id")
 	dbmodel = dbmodel.Where("track_visitors.company_id = ? AND track_visitors.branch_id = ? AND track_visitors.date BETWEEN ? AND ?", company_id, branch_id, startdate, enddate)
-	dbmodel = dbmodel.Where("track_visitors.status = ?", status)
-	dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)
-	//dbmodel = dbmodel.Scan(&visitor)
+	if status != "" {
+		dbmodel = dbmodel.Where("track_visitors.status = ?", status)
+	}
+	if search != "" {
+		search += fmt.Sprintf("%s", "%")
+		dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)
+	}
+	if frequent != false {
+		dbmodel = dbmodel.Group("track_visitors.v_id")
+		dbmodel = dbmodel.Order("COUNT(track_visitors.v_id) DESC")
+	}
 	err := dbmodel.Count(&count).Error
 	err = dbmodel.Limit(limit).Offset(offset).Scan(&visitor).Error
 

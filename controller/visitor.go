@@ -183,13 +183,13 @@ func GetAllVisitor(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d AND visitors.branch_id = %d", claims.CompanyId, branch_id)
-	if search != "" {
-		search += fmt.Sprintf("%s", "%")
-		sql += fmt.Sprintf(" AND visitors.name LIKE ? OR visitors.email LIKE ? OR visitors.phone LIKE ?")
-	}
-	sql += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
-	res, err := repository.GetAllVisitorSpecific(sql, search)
+	// sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d AND visitors.branch_id = %d", claims.CompanyId, branch_id)
+	// if search != "" {
+	// 	search += fmt.Sprintf("%s", "%")
+	// 	sql += fmt.Sprintf(" AND visitors.name LIKE ? OR visitors.email LIKE ? OR visitors.phone LIKE ?")
+	// }
+	// sql += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
+	res, count, err := repository.GetAllVisitorSpecific(claims.CompanyId, branch_id, search, limit, offset)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -473,6 +473,7 @@ func GetTodaysVisitor(c echo.Context) error {
 	var pagination = new(types.PaginationGetAllRecord)
 	var order, status, search string
 	var branch_id int
+	var frequent bool
 	// var frequent bool
 	// if c.QueryParam("frequent") == "" {
 	// 	frequent = false
@@ -481,18 +482,20 @@ func GetTodaysVisitor(c echo.Context) error {
 	// }
 
 	const shortForm = "2006-01-02"
-	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" || c.QueryParam("status") != "" || c.QueryParam("branch_id") != "" || c.QueryParam("search") != "" {
+	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" || c.QueryParam("status") != "" || c.QueryParam("branch_id") != "" || c.QueryParam("search") != "" || c.QueryParam("frequent") != "" {
 		start_date, _ = time.Parse(shortForm, c.QueryParam("start_date"))
 		end_date, _ = time.Parse(shortForm, c.QueryParam("end_date"))
 		order = c.QueryParam("order")
 		search = c.QueryParam("search")
 		status = c.QueryParam("status")
 		branch_id, _ = strconv.Atoi(c.QueryParam("branch_id"))
+		frequent, _ = strconv.ParseBool(c.QueryParam("frequent"))
 
 	} else {
 		start_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
 		end_date, _ = time.Parse(shortForm, time.Now().Local().Format("2006-01-02"))
 		order = "DESC"
+		frequent = false
 	}
 	var page, limit, offset int
 	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
@@ -511,32 +514,7 @@ func GetTodaysVisitor(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	// count, err := repository.CountRecord(claims.CompanyId, branch_id, status, start_date, end_date, search)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, err.Error())
-	// }
-	//Pagination.TotalCount = count
-
-	/*	join_sql := "SELECT track_visitors.*,visitors.name,visitors.email,visitors.phone,visitors.address,visitors.image_name,visitors.image_path,visitors.company_representating FROM track_visitors LEFT JOIN visitors ON track_visitors.v_id = visitors.id"
-
-		sql := fmt.Sprintf("%s WHERE (track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ?", join_sql, claims.CompanyId, branch_id)
-		if status != "" {
-			sql = fmt.Sprintf("%s AND track_visitors.status = ?", sql)
-		}
-		if search != "" {
-			sql = fmt.Sprintf("%s) AND (visitors.name LIKE ? OR visitors.email LIKE ? OR visitors.phone LIKE ?) LIMIT %d", sql, 3)
-			res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status, search)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, err.Error())
-			}
-
-			Pagination.Items = res
-			return c.JSON(http.StatusOK, Pagination)
-		}
-
-		sql = fmt.Sprintf("%s) ORDER BY track_visitors.id %s LIMIT %d OFFSET %d", sql, order, limit, offset)*/
-
-	res, count, err := repository.GetTodaysVisitor(claims.CompanyId, branch_id, start_date, end_date, status, search, order, offset, limit)
+	res, count, err := repository.GetTodaysVisitor(claims.CompanyId, branch_id, start_date, end_date, status, search, order, offset, limit, frequent)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
