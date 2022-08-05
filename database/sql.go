@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	//	gormlogger "gorm.io/gorm/logger"
+	//gormlogger "gorm.io/gorm/logger"
 	"visitor-management-system/model"
 )
 
@@ -50,7 +50,7 @@ func Migration() {
 	db.AutoMigrate(&model.Company{})
 	db.AutoMigrate(&model.Branch{})
 	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Subscription{})
+	//db.AutoMigrate(&model.Subscription{})
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.AutoMigrate(&model.Record{})

@@ -72,10 +72,10 @@ func CreateVisitor(c echo.Context) error {
 		}
 
 	}
-	res, str, err := utils.ValidateSubscription(claims.CompanyId)
-	if res != true || err != nil {
-		return c.JSON(http.StatusOK, str)
-	}
+	// res, str, err := utils.ValidateSubscription(claims.CompanyId)
+	// if res != true || err != nil {
+	// 	return c.JSON(http.StatusOK, str)
+	// }
 
 	visitor.CompanyId = claims.CompanyId
 	file, err := c.FormFile("image")
@@ -178,17 +178,7 @@ func GetAllVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	count, err := repository.CountVisitor(claims.CompanyId, branch_id, search)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
 
-	// sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d AND visitors.branch_id = %d", claims.CompanyId, branch_id)
-	// if search != "" {
-	// 	search += fmt.Sprintf("%s", "%")
-	// 	sql += fmt.Sprintf(" AND visitors.name LIKE ? OR visitors.email LIKE ? OR visitors.phone LIKE ?")
-	// }
-	// sql += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 	res, count, err := repository.GetAllVisitorSpecific(claims.CompanyId, branch_id, search, limit, offset)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -312,13 +302,13 @@ func SearchVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	if claims.UserType == "Admin" {
-		res, err := repository.Search(visitor, claims.CompanyId, search)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-		return c.JSON(http.StatusOK, res)
-	}
+	// if claims.UserType == "Admin" {
+	// 	res, err := repository.Search(visitor, claims.CompanyId, search)
+	// 	if err != nil {
+	// 		return c.JSON(http.StatusInternalServerError, err.Error())
+	// 	}
+	// 	return c.JSON(http.StatusOK, res)
+	// }
 	//fmt.Println(branch_id)
 	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, branch_id, search)
 	if err != nil {
@@ -370,10 +360,10 @@ func CheckIn(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	res, str, err := utils.ValidateSubscription(claims.CompanyId)
-	if res != true || err != nil {
-		return c.JSON(http.StatusUnauthorized, str)
-	}
+	// res, str, err := utils.ValidateSubscription(claims.CompanyId)
+	// if res != true || err != nil {
+	// 	return c.JSON(http.StatusUnauthorized, str)
+	// }
 
 	info.CompanyId = claims.CompanyId
 	//info.BranchId = claims.BranchId

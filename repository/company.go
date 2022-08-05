@@ -22,24 +22,24 @@ func UpdateUser(user *model.User) error {
 	return err
 }
 
-func ChangeSubscription(sub *model.Subscription) error {
-	// err := db.Where("company_id = ?", sub.CompanyId).Delete(&sub).Error
-	// err = db.Save(&sub).Error
-	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", sub.Subscription_type).Error
-	return err
-}
+// func ChangeSubscription(sub *model.Subscription) error {
+// 	// err := db.Where("company_id = ?", sub.CompanyId).Delete(&sub).Error
+// 	// err = db.Save(&sub).Error
+// 	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", sub.Subscription_type).Error
+// 	return err
+// }
 
-func CancelSubscription(sub *model.Subscription) error {
-	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", "free").Error
-	return err
-}
+// func CancelSubscription(sub *model.Subscription) error {
+// 	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", "free").Error
+// 	return err
+// }
 
-func GetPreviousSubscription(id int) (model.Subscription, error) {
-	var subscription model.Subscription
-	err := db.Where("company_id = ?", id).Find(&subscription).Error
+// func GetPreviousSubscription(id int) (model.Subscription, error) {
+// 	var subscription model.Subscription
+// 	err := db.Where("company_id = ?", id).Find(&subscription).Error
 
-	return subscription, err
-}
+// 	return subscription, err
+// }
 
 func IsCompanyValid(name string, subdomain string) (int64, error) {
 	var existing_company []*model.Company

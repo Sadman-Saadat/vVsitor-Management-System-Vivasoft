@@ -21,6 +21,7 @@ func GetAllVisitor(sql string) (visitor []*model.Visitor, err error) {
 func GetAllVisitorSpecific(company_id int, branch_id int, search string, limit int, offset int) (visitor []*model.Visitor, count int64, err error) {
 	//search += fmt.Sprintf("%s", "%")
 	dbmodel := db.Model(&model.Visitor{}).Select("*")
+	dbmodel = dbmodel.Where("visitors.company_id = ? AND visitors.branch_id = ?", company_id, branch_id)
 	if search != "" {
 		search += fmt.Sprintf("%s", "%")
 		dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)

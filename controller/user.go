@@ -176,7 +176,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, new_user)
+	return c.JSON(http.StatusCreated, user)
 }
 
 // swagger:route GET /user/get-all USER AllUser
