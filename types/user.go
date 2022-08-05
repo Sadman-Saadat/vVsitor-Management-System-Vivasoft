@@ -67,3 +67,18 @@ type PaginationGetAllRecord struct {
 	TotalCount int64
 	Items      []*model.Record
 }
+
+type Master struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type Mastertoken struct {
+	Token        string
+	RefreshToken string
+}
+
+type PackageDetails struct {
+	PackageType string `json:"package_type" validate:"required"`
+	Days        string `json:"days" validate:"required"`
+}

@@ -50,6 +50,7 @@ func Execute() {
 	routes.Visitor(e)
 	routes.Branch(e)
 	routes.Settings(e)
+	routes.MasterAdmin(e)
 
 	dg := e.Group("docs")
 	dg.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))

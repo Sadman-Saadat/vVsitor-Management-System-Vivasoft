@@ -172,7 +172,7 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "need admin access")
 	}
 
-	if err := utils.SendEmail(user, password); err != nil {
+	if err := utils.SendEmail(user.Email, password, user.SubDomain); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

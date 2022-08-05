@@ -127,7 +127,7 @@ func Registration(c echo.Context) error {
 	}
 
 	//confirmation mail
-	if err := utils.SendEmail(admin, password); err != nil {
+	if err := utils.SendEmail(admin.Email, password, admin.SubDomain); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

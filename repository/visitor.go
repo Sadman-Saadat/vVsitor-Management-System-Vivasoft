@@ -27,6 +27,7 @@ func GetAllVisitorSpecific(company_id int, branch_id int, search string, limit i
 		dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)
 
 	}
+	dbmodel = dbmodel.Order("visitors.id DESC")
 	err = dbmodel.Count(&count).Error
 	err = dbmodel.Limit(limit).Offset(offset).Scan(&visitor).Error
 	return
@@ -104,6 +105,7 @@ func GetTodaysVisitor(company_id int, branch_id int, startdate time.Time, enddat
 		dbmodel = dbmodel.Group("track_visitors.v_id")
 		dbmodel = dbmodel.Order("COUNT(track_visitors.v_id) DESC")
 	}
+	dbmodel = dbmodel.Order("track_visitors.id DESC")
 	err := dbmodel.Count(&count).Error
 	err = dbmodel.Limit(limit).Offset(offset).Scan(&visitor).Error
 
