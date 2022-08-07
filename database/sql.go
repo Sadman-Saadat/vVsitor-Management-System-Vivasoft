@@ -53,6 +53,7 @@ func Migration() {
 	//db.AutoMigrate(&model.Subscription{})
 	db.AutoMigrate(&model.MasterAdmin{})
 	db.AutoMigrate(&model.Package{})
+	db.AutoMigrate(&model.PackageFeatures{})
 	db.AutoMigrate(&model.Visitor{})
 	db.AutoMigrate(&model.TrackVisitor{})
 	db.AutoMigrate(&model.Record{})
