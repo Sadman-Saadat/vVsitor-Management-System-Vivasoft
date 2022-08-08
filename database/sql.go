@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
+	//gormlogger "gorm.io/gorm/logger"
 	"visitor-management-system/model"
 )
 
@@ -30,11 +30,11 @@ var db *gorm.DB
 // }
 
 func Connect() {
-	logMode := gormlogger.Info
+	//logMode := gormlogger.Info
 
 	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{
-		PrepareStmt: true,
-		Logger:      gormlogger.Default.LogMode(logMode),
+		//PrepareStmt: true,
+		//Logger:      gormlogger.Default.LogMode(logMode),
 	})
 
 	if err != nil {

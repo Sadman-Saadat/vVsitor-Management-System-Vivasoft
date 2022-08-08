@@ -72,29 +72,26 @@ func CreateVisitor(c echo.Context) error {
 		}
 
 	}
-	// res, str, err := utils.ValidateSubscription(claims.CompanyId)
-	// if res != true || err != nil {
-	// 	return c.JSON(http.StatusOK, str)
-	// }
+	res, str, err, image_bool := utils.ValidateSubscription(claims.CompanyId)
+	if res != true || err != nil {
+		return c.JSON(http.StatusInternalServerError, str)
+	}
 
 	visitor.CompanyId = claims.CompanyId
 	file, err := c.FormFile("image")
 
-	settings, err := repository.Setting(claims.CompanyId)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	if settings.Image == true && file == nil || settings.Email == true && visitor.Email == "" {
-		return c.JSON(http.StatusBadRequest, "image/email is mandatory")
+	if file != nil && image_bool == false {
+		return c.JSON(http.StatusBadRequest, "please change subscription to add visitor image")
 	}
 
 	if file != nil {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
 		src, err := file.Open()
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, file.Header)
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		defer src.Close()
 
@@ -115,12 +112,6 @@ func CreateVisitor(c echo.Context) error {
 		visitor.ImagePath = uploadedfilepath
 
 	}
-	// resdetails, err := repository.GetBranchDetails(claims.CompanyId, claims.BranchId)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, err.Error())
-	// }
-	// visitor.BranchName = resdetails.BranchName
-
 	if err := repository.CreateVisitor(visitor); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -359,23 +350,20 @@ func CheckIn(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
+	var image_bool = false
 
-	// res, str, err := utils.ValidateSubscription(claims.CompanyId)
-	// if res != true || err != nil {
-	// 	return c.JSON(http.StatusUnauthorized, str)
-	// }
+	res, str, err, image_bool := utils.ValidateSubscription(claims.CompanyId)
+	if res != true || err != nil {
+		return c.JSON(http.StatusUnauthorized, str)
+	}
 
 	info.CompanyId = claims.CompanyId
 	//info.BranchId = claims.BranchId
 	//save image
 	file, err := c.FormFile("image")
 
-	settings, err := repository.Setting(claims.CompanyId)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	if settings.Image == true && file == nil {
-		return c.JSON(http.StatusBadRequest, "image is mandatory")
+	if file != nil && image_bool == false {
+		return c.JSON(http.StatusBadRequest, "please change subscription to add visitor image")
 	}
 
 	if file != nil {
@@ -397,11 +385,11 @@ func CheckIn(c echo.Context) error {
 
 		uploadedfilename := utils.GenerateFile(res.Name)
 		uploadedfilepath := path.Join("./images", uploadedfilename)
-		fmt.Println(uploadedfilepath)
+
 		dst, err := os.Create(uploadedfilepath)
 		defer dst.Close()
 		if err != nil {
-			fmt.Println(err.Error())
+
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
@@ -416,10 +404,9 @@ func CheckIn(c echo.Context) error {
 	// t, _ = time.Parse(shortForm, "2013-Feb-03")
 	// fmt.Println(t)
 	times := time.Now().Local().Format("2006-01-02")
-	fmt.Println(times)
+
 	const shortForm = "2006-01-02"
 	info.Date, _ = time.Parse(shortForm, times)
-	fmt.Println(info.Date)
 
 	info.CheckIn = time.Now().Local().Format("03:04:05 pm")
 

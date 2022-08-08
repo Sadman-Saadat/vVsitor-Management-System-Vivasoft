@@ -47,3 +47,9 @@ func IsCompanyValid(name string, subdomain string) (int64, error) {
 	err := db.Where("company_name = ?", name).Or("sub_domain = ?", subdomain).Find(&existing_company).Count(&count).Error
 	return count, err
 }
+
+func GetPackageById(id int) (*model.Package, error) {
+	var pack *model.Package
+	err := db.Model(&model.Package{}).Where("id=?", id).Find(&pack).Error
+	return pack, err
+}

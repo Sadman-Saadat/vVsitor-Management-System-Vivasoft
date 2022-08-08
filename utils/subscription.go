@@ -1,43 +1,53 @@
 package utils
 
 import (
-// "fmt"
-// "time"
-// "visitor-management-system/const"
-// "visitor-management-system/model"
-// "visitor-management-system/repository"
+	"fmt"
+	"time"
+	//"visitor-management-system/const"
+	//"visitor-management-system/model"
+	"visitor-management-system/repository"
 )
 
-//func ValidateSubscription(id int) (bool, string, error) {
-// var subscription = new(model.Subscription)
-// subscription.CompanyId = id
-// res, err := repository.GetSubscriptionDetails(subscription)
-// if err != nil {
-// 	return false, "", err
-// }
-// now := time.Now().Local()
+func ValidateSubscription(id int) (bool, string, error, bool) {
 
-// if now.After(res.Subscription_end) {
-// 	return false, "your subscription is over", err
-// }
+	res, err := repository.GetCompanyById(id)
+	if err != nil {
+		return false, "", err, false
+	}
 
-// count, err := repository.CountPresentVisitor(id)
-// fmt.Println(count)
-// if err != nil {
-// 	return false, "", err
-// }
-// if res.Subscription_type == "cancel" {
-// 	return false, consts.Upgrade, err
-// }
-// if res.Subscription_type == "silver" && count > 3 {
-// 	return false, consts.Upgrade, err
-// }
-// if res.Subscription_type == "free" && count > 5 {
-// 	return false, consts.Upgrade, err
-// }
-// if res.Subscription_type == "premium" {
-// 	return true, "", err
-// }
+	fmt.Println(res)
+	if res.Status != true {
+		return false, "you are restricted plz contact vivasoft", err, false
+	}
 
-// return true, "", err
-//}
+	now := time.Now().Local()
+	if now.After(res.Subscription_End) {
+		return false, "your subscription is over", err, false
+	}
+
+	features, err := repository.GetPackageFeature(res.Package_Id)
+	if err != nil {
+		return false, "", err, features.Image
+	}
+	fmt.Println(features)
+
+	count, err := repository.CountPresentVisitor(id)
+	fmt.Println(count)
+	if err != nil {
+		return false, "", err, features.Image
+	}
+	if int(count) > features.VisitorCountPerDay {
+		return false, "per day count limit exceeded", err, features.Image
+	}
+
+	total_count, err := repository.GetAllVisitor(id)
+	fmt.Println(total_count)
+	if err != nil {
+		return false, "", err, features.Image
+	}
+	if int(total_count) > features.MaxRegistredVisitorCount {
+		return false, "max limit exceeded", err, features.Image
+	}
+
+	return true, "", err, features.Image
+}

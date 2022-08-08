@@ -1,7 +1,7 @@
 package controller
 
 import (
-	//"fmt"
+	"fmt"
 	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -66,8 +66,8 @@ func MasterLogin(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	tokens.Token = token
-	tokens.RefreshToken = refresh_token
+	tokens.User_Token = token
+	tokens.User_Refreshtoken = refresh_token
 
 	return c.JSON(http.StatusOK, tokens)
 }
@@ -138,12 +138,12 @@ func CompanyList(c echo.Context) error {
 func Packagelist(c echo.Context) error {
 	//var pagination = new(types.PaginationGetAllPackage)
 
-	auth_token := c.Request().Header.Get("Authorization")
-	split_token := strings.Split(auth_token, "Bearer ")
-	claims, err := utils.DecodeToken(split_token[1])
-	if err != nil || claims.UserType != "Master Admin" {
-		return c.JSON(http.StatusUnauthorized, "not authorized")
-	}
+	// auth_token := c.Request().Header.Get("Authorization")
+	// split_token := strings.Split(auth_token, "Bearer ")
+	// claims, err := utils.DecodeToken(split_token[1])
+	// if err != nil || claims.UserType != "Master Admin" {
+	// 	return c.JSON(http.StatusUnauthorized, "not authorized")
+	// }
 
 	res, err := repository.GetPackageList()
 	if err != nil {
@@ -151,4 +151,120 @@ func Packagelist(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+
+func GetAllCompanyAdmin(c echo.Context) error {
+	var pagination = new(types.PaginationGetAllAdmins)
+	var search string
+	var page, limit, offset int
+	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
+		page = 1
+		limit = 3
+	} else {
+		page, _ = strconv.Atoi(c.QueryParam("page"))
+		limit, _ = strconv.Atoi(c.QueryParam("limit"))
+	}
+	if c.QueryParam("search") != "" {
+		search = c.QueryParam("search")
+	}
+
+	offset = (page - 1) * limit
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
+
+	resp, count, err := repository.GetCompanyAdminlist(limit, offset, search)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	pagination.TotalCount = count
+	pagination.Items = resp
+
+	return c.JSON(http.StatusOK, pagination)
+
+}
+
+func DeletePackage(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	err1, err2 := repository.DeletePackage(id)
+	if err1 != nil || err2 != nil {
+		return c.JSON(http.StatusInternalServerError, err1.Error())
+	}
+	return c.JSON(http.StatusOK, "deleted")
+}
+
+func UpdatePackagefeatures(c echo.Context) error {
+	var updated_feature = new(model.PackageFeatures)
+	if err := c.Bind(updated_feature); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	if validationerr := validate.Struct(updated_feature); validationerr != nil {
+		return c.JSON(http.StatusInternalServerError, validationerr.Error())
+	}
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
+
+	err = repository.UpdateFeatures(updated_feature)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, "updated")
+
+}
+
+func UpdateCompanyStatus(c echo.Context) error {
+	// company_id, _ := strconv.Atoi("id")
+	//fmt.Println(company_id)
+	var status = new(types.Status)
+	if err := c.Bind(status); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	fmt.Println(status.Id)
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, "not authorized")
+	}
+	err = repository.UpdateCompanyStatus(status.Id, status.Status)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, "updated company")
+}
+
+func AdminPasswordChange(c echo.Context) error {
+	user_id, _ := strconv.Atoi(c.Param("id"))
+	password, err := utils.GenerateRandomPassword()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	encrypted_password, err := utils.Encrypt(password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	admin, err := repository.GetUserById(user_id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	admin.Password = encrypted_password
+	if err := repository.UpdateOfficialUser(admin); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	if err := utils.SendEmail(admin.Email, password, admin.SubDomain); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, admin)
 }

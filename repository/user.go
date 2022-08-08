@@ -48,3 +48,10 @@ func GetBranchDetails(id int, bid int) (*model.Branch, error) {
 	err := db.Find(&branch).Error
 	return &branch, err
 }
+
+func GetUserById(id int) (*model.User, error) {
+	var user *model.User
+
+	err := db.Where("id= ?", id).Find(&user).Error
+	return user, err
+}

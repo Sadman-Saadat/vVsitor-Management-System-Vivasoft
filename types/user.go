@@ -73,8 +73,8 @@ type Master struct {
 }
 
 type Mastertoken struct {
-	Token        string
-	RefreshToken string
+	User_Token        string
+	User_Refreshtoken string
 }
 
 type PackageDetails struct {
@@ -90,4 +90,27 @@ type PaginationGetAllCompany struct {
 type PaginationGetAllPackage struct {
 	TotalCount int64
 	Items      []*model.Package
+}
+
+type PaginationGetAllAdmins struct {
+	TotalCount int64
+	Items      []*AdminDetails
+}
+
+type AdminDetails struct {
+	Id          int    `gorm:"primary_key;AUTO_INCREMENT"`
+	Name        string `json:"name" `
+	Email       string `json:"email" `
+	SubDomain   string
+	CompanyId   int
+	BranchId    int
+	UserType    string `json:"user_type"`
+	Password    string
+	CompanyName string `json:"company_name"`
+	Address     string `json:"address"`
+}
+
+type Status struct {
+	Id     int  `json:"company_id"`
+	Status bool `json:"status"`
 }

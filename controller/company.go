@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	// "strings"
-	// "time"
+	"time"
 	// "visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
@@ -41,7 +41,7 @@ func Registration(c echo.Context) error {
 	var company = new(model.Company)
 	var admin = new(model.User)
 	var branch = new(model.Branch)
-	var settings = new(model.Setting)
+
 	var relation = new(model.UserBranchRelation)
 	//bind
 	if err := c.Bind(company); err != nil {
@@ -71,6 +71,15 @@ func Registration(c echo.Context) error {
 	if res_com != 0 {
 		return c.JSON(http.StatusInternalServerError, "company name or subdomain already exists")
 	}
+	company.Status = true
+
+	pack, err := repository.GetPackageById(company.Package_Id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	company.Subscription_Start = time.Now().Local()
+	company.Subscription_End = time.Now().Local().Add(time.Hour * time.Duration(pack.Duration))
 
 	res, err := repository.RegisterCompany(company)
 
@@ -111,16 +120,9 @@ func Registration(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	settings.CompanyId = res.Id
-	settings.Email = true
-	settings.Image = true
-
 	relation.BranchId = branchdetails.Id
 	relation.CompanyId = admin_user.CompanyId
 	relation.UserId = admin_user.Id
-	if _, err := repository.CreateNewSettings(settings); err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
 
 	if err := repository.CreateNewUserBranchRelation(relation); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

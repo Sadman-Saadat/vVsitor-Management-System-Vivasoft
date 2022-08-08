@@ -13,9 +13,12 @@ func CreateVisitor(visitor *model.Visitor) error {
 	return err
 }
 
-func GetAllVisitor(sql string) (visitor []*model.Visitor, err error) {
-	err = db.Raw(sql).Scan(&visitor).Error
-	return
+func GetAllVisitor(id int) (int64, error) {
+	var count int64
+	dbmodel := db.Model(&model.Visitor{}).Where("company_id =?", id)
+	dbmodel = dbmodel.Count(&count)
+	err := dbmodel.Error
+	return count, err
 }
 
 func GetAllVisitorSpecific(company_id int, branch_id int, search string, limit int, offset int) (visitor []*model.Visitor, count int64, err error) {
@@ -76,7 +79,9 @@ func CheckIn(info *model.TrackVisitor) error {
 func CountPresentVisitor(id int) (int64, error) {
 	var count int64
 	var count2 int64
-	today := time.Now().Local().Format("2006-01-02")
+	times := time.Now().Local().Format("2006-01-02")
+	const shortForm = "2006-01-02"
+	today, _ := time.Parse(shortForm, times)
 	val := "Arrived"
 	val2 := "left"
 	var visitor []*model.TrackVisitor
@@ -219,4 +224,10 @@ func CountRecord(company_id int, branch_id int, status string, start time.Time, 
 
 	return count, err
 
+}
+
+func GetCompanyById(id int) (*model.Company, error) {
+	var company *model.Company
+	err := db.Model(&model.Company{}).Where("id=?", id).Find(&company).Error
+	return company, err
 }

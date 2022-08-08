@@ -15,7 +15,7 @@ type Company struct {
 	Status             bool
 	Subscription_Start time.Time
 	Subscription_End   time.Time
-	Package_Id         int
+	Package_Id         int `json:"package_id" validate:"required"`
 	// Subscription    Subscription `gorm:"foreignKey:CompanyId;references:Id"`
 	// User            []User       `gorm:"ForeignKey:CompanyId;references:Id"`
 
