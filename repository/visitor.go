@@ -173,6 +173,16 @@ func IsVistorRegistered(email string, id int, b_id int) (bool, error) {
 
 }
 
+func IsPhoneNumberPresent(phone string, id int, b_id int) (bool, error) {
+	var visitor []*model.Visitor
+	var count int64
+	err := db.Where("phone= ? AND company_id = ? AND branch_id = ?", phone, id, b_id).Find(&visitor).Count(&count).Error
+	if count != 0 {
+		return false, err
+	}
+	return true, err
+}
+
 func CountVisitor(company_id int, id int, search string) (int64, error) {
 	var visitor *model.Visitor
 	var count int64

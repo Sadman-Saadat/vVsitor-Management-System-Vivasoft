@@ -1,6 +1,7 @@
 package types
 
 import (
+	"time"
 	"visitor-management-system/model"
 )
 
@@ -84,7 +85,7 @@ type PackageDetails struct {
 
 type PaginationGetAllCompany struct {
 	TotalCount int64
-	Items      []*model.Company
+	Items      []*CompanyDetails
 }
 
 type PaginationGetAllPackage struct {
@@ -113,4 +114,18 @@ type AdminDetails struct {
 type Status struct {
 	Id     int  `json:"company_id"`
 	Status bool `json:"status"`
+}
+
+type CompanyDetails struct {
+	Id                 int    `gorm:"primary_key;AUTO_INCREMENT"`
+	CompanyName        string `json:"company_name" validate:"required,min=2,max=30"`
+	Address            string `json:"address"`
+	SubDomain          string `json:"sub_domain"`
+	SubscriberName     string `json:"subscriber_name"`
+	SubscriberEmail    string `json:"subscriber_email" validate:"required,email"`
+	Status             bool
+	Subscription_Start time.Time
+	Subscription_End   time.Time
+	Package_Id         int `json:"package_id" validate:"required"`
+	Subscription_type  string
 }

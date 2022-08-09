@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"strconv"
 	"visitor-management-system/model"
 	"visitor-management-system/types"
 )
@@ -22,13 +23,21 @@ func CreatePackage(packges *model.Package) (*model.Package, error) {
 	return packges, err
 }
 
-func GetCompanyList(limit int, offset int, search string) ([]*model.Company, int64, error) {
-	var company []*model.Company
+func GetCompanyList(limit int, offset int, search string, status string, package_id int) ([]*types.CompanyDetails, int64, error) {
+	var company []*types.CompanyDetails
 	var count int64
-	dbmodel := db.Model(&model.Company{})
+	var bool_search bool
+	dbmodel := db.Model(&model.Company{}).Select("companies.*, packages.subscription_type").Joins("left join packages on packages.id = companies.package_id")
 	if search != "" {
 		search += fmt.Sprintf("%s", "%")
-		dbmodel = dbmodel.Where("company_name LIKE ? AND sub_domain LIKE ?", search, search)
+		dbmodel = dbmodel.Where("company_name LIKE ? OR sub_domain LIKE ? ", search, search)
+	}
+	if status != "" {
+		bool_search, _ = strconv.ParseBool(status)
+		dbmodel = dbmodel.Where("status = ?", bool_search)
+	}
+	if package_id != 0 {
+		dbmodel = dbmodel.Where("package_id = ?", package_id)
 	}
 	dbmodel = dbmodel.Count(&count)
 	dbmodel = dbmodel.Limit(limit).Offset(offset).Find(&company)

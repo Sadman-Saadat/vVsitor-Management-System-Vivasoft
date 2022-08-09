@@ -104,8 +104,8 @@ func CreatePackage(c echo.Context) error {
 
 func CompanyList(c echo.Context) error {
 	var pagination = new(types.PaginationGetAllCompany)
-	var search string
-	var page, limit, offset int
+	var search, status string
+	var page, limit, offset, package_id int
 	if c.QueryParam("page") == "" && c.QueryParam("limit") == "" {
 		page = 1
 		limit = 3
@@ -117,6 +117,13 @@ func CompanyList(c echo.Context) error {
 		search = c.QueryParam("search")
 	}
 
+	if c.QueryParam("status") != "" {
+		status = c.QueryParam("status")
+	}
+	if c.QueryParam("package_id") != "" {
+		package_id, _ = strconv.Atoi(c.QueryParam("package_id"))
+	}
+
 	offset = (page - 1) * limit
 
 	auth_token := c.Request().Header.Get("Authorization")
@@ -126,7 +133,7 @@ func CompanyList(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "not authorized")
 	}
 
-	res, count, err := repository.GetCompanyList(limit, offset, search)
+	res, count, err := repository.GetCompanyList(limit, offset, search, status, package_id)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}

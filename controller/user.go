@@ -55,6 +55,14 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
+	user_company, err := repository.GetCompanyById(model_user.CompanyId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	if user_company.Status == false {
+		return c.JSON(http.StatusUnauthorized, "blocked")
+	}
+
 	if err := utils.VerifyPassword(user.Password, model_user.Password); err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
@@ -288,7 +296,7 @@ func DeleteOfficialUser(c echo.Context) error {
 
 func ChangePassword(c echo.Context) error {
 	var password = new(types.Password)
-	//sub_domain := c.QueryParam("sub_domain")
+	id, _ := strconv.Atoi(c.Param("id"))
 
 	if err := c.Bind(password); err != nil {
 		return c.JSON(http.StatusBadRequest, consts.BadRequest)
@@ -299,18 +307,12 @@ func ChangePassword(c echo.Context) error {
 	}
 	//token validation
 
-	auth_token := c.Request().Header.Get("Authorization")
-	split_token := strings.Split(auth_token, "Bearer ")
-	claims, err := utils.DecodeToken(split_token[1])
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
-	}
-	user, err := repository.GetUserByEmail(claims.Email, claims.SubDomain)
+	user, err := repository.GetUserById(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "data not found")
 	}
 	//subscriber validation and update password
-	if user.Id == claims.Id && password.Password == password.ConfirmPassword {
+	if user.Id == id && password.Password == password.ConfirmPassword {
 		user.Password, err = utils.Encrypt(password.ConfirmPassword)
 		if err := repository.UpdateUser(user); err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())

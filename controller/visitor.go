@@ -68,9 +68,13 @@ func CreateVisitor(c echo.Context) error {
 		is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId, visitor.BranchId)
 
 		if is_registered != true || err != nil {
-			return c.JSON(http.StatusBadRequest, "visitor already registered")
+			return c.JSON(http.StatusBadRequest, "visitor email already registered")
 		}
 
+	}
+	valid_phone, err := repository.IsPhoneNumberPresent(visitor.Phone, claims.CompanyId, visitor.BranchId)
+	if valid_phone != true || err != nil {
+		return c.JSON(http.StatusBadRequest, "visitor phone already registered")
 	}
 	res, str, err, image_bool := utils.ValidateSubscription(claims.CompanyId)
 	if res != true || err != nil {
