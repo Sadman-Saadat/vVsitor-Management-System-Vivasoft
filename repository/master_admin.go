@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"strconv"
+	"time"
 	"visitor-management-system/model"
 	"visitor-management-system/types"
 )
@@ -81,5 +82,11 @@ func UpdateFeatures(new_features *model.PackageFeatures) error {
 
 func UpdateCompanyStatus(company_id int, status bool) error {
 	err := db.Model(&model.Company{}).Where("id =?", company_id).Update("status", status).Error
+	return err
+}
+
+func ChangeSubscription(sub *types.ChangeSubscription, start time.Time, end time.Time) error {
+
+	err := db.Model(&model.Company{}).Where("id = ?", sub.CompanyId).Updates(map[string]interface{}{"package_id": sub.PackageId, "subscription_start": start, "status": true, "subscription_end": end}).Error
 	return err
 }

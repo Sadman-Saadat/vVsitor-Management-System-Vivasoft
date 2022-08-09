@@ -5,9 +5,9 @@ import (
 	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strings"
-	// "time"
 	"strconv"
+	"strings"
+	"time"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
 	"visitor-management-system/token"
@@ -274,4 +274,34 @@ func AdminPasswordChange(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, admin)
+}
+
+func ChangeSubscription(c echo.Context) error {
+	var new_subscription = new(types.ChangeSubscription)
+	if err := c.Bind(new_subscription); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	if validationerr := validate.Struct(new_subscription); validationerr != nil {
+		return c.JSON(http.StatusBadRequest, validationerr.Error())
+	}
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+	pack, err := repository.GetPackageById(new_subscription.PackageId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	start := time.Now().Local()
+	end := time.Now().Local().Add(time.Hour * time.Duration(pack.Duration))
+
+	if err := repository.ChangeSubscription(new_subscription, start, end); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "subscription updated")
 }

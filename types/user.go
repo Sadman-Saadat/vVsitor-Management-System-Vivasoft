@@ -129,3 +129,8 @@ type CompanyDetails struct {
 	Package_Id         int `json:"package_id" validate:"required"`
 	Subscription_type  string
 }
+
+type ChangeSubscription struct {
+	CompanyId int `json:"company_id" validate:"required"`
+	PackageId int `json:"package_id" validate:"required"`
+}

@@ -20,7 +20,7 @@ func MasterAdmin(e *echo.Echo) {
 	sub.PATCH("/package-features/update", controller.UpdatePackagefeatures)
 	sub.PATCH("/company/active-status/update", controller.UpdateCompanyStatus)
 	sub.PATCH("/company-admin/reset-password/:id", controller.AdminPasswordChange)
-
+	sub.PATCH("/change-subscription", controller.ChangeSubscription)
 	// sub.PATCH("/change-subscription", controller.ChangeSubscription, middleware.Authenticate)
 	// sub.DELETE("/", controller.CancelSubscription, middleware.Authenticate)
 

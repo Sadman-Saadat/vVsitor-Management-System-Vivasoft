@@ -22,13 +22,6 @@ func UpdateUser(user *model.User) error {
 	return err
 }
 
-// func ChangeSubscription(sub *model.Subscription) error {
-// 	// err := db.Where("company_id = ?", sub.CompanyId).Delete(&sub).Error
-// 	// err = db.Save(&sub).Error
-// 	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", sub.Subscription_type).Error
-// 	return err
-// }
-
 // func CancelSubscription(sub *model.Subscription) error {
 // 	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", "free").Error
 // 	return err
