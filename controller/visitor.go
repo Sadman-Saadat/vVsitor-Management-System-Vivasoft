@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"io"
+	"image/jpeg"
+	//"io"
 	"net/http"
 	"os"
 	"path"
@@ -41,7 +44,7 @@ import (
 
 func CreateVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
-
+	var f *os.File
 	visitor.Name = c.FormValue("name")
 	visitor.Address = c.FormValue("address")
 	visitor.CompanyRepresentating = c.FormValue("company_rep")
@@ -82,35 +85,31 @@ func CreateVisitor(c echo.Context) error {
 	}
 
 	visitor.CompanyId = claims.CompanyId
-	file, err := c.FormFile("image")
+	image := c.FormValue("image")
 
-	if file != nil && image_bool == false {
+	if image != "" && image_bool == false {
 		return c.JSON(http.StatusBadRequest, "please change subscription to add visitor image")
 	}
 
-	if file != nil {
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-
-		src, err := file.Open()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-		defer src.Close()
+	if image != "" {
 
 		uploadedfilename := utils.GenerateFile(visitor.Name)
 		uploadedfilepath := path.Join("./images", uploadedfilename)
-		fmt.Println(uploadedfilepath)
-		dst, err := os.Create(uploadedfilepath)
-		defer dst.Close()
+
+		coI := strings.Index(string(image), ",")
+		rawImage := string(image)[coI+1:]
+		unbased, err := base64.StdEncoding.DecodeString(string(rawImage))
 		if err != nil {
-			fmt.Println(err.Error())
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-
-		if _, err = io.Copy(dst, src); err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
+		res := bytes.NewReader(unbased)
+		jpgI, errJpg := jpeg.Decode(res)
+		if errJpg == nil {
+			f, _ = os.OpenFile("images"+"/"+uploadedfilename, os.O_WRONLY|os.O_CREATE, 0777)
+			jpeg.Encode(f, jpgI, &jpeg.Options{Quality: 75})
+			fmt.Println("Jpg created")
+		} else {
+			fmt.Println(errJpg.Error())
 		}
 		visitor.ImageName = uploadedfilename
 		visitor.ImagePath = uploadedfilepath
@@ -336,6 +335,7 @@ func SearchVisitor(c echo.Context) error {
 
 func CheckIn(c echo.Context) error {
 	var info = new(model.TrackVisitor)
+	var f *os.File
 	//assign value
 	id := c.FormValue("v_id")
 	info.VId, _ = strconv.Atoi(id)
@@ -364,46 +364,76 @@ func CheckIn(c echo.Context) error {
 	info.CompanyId = claims.CompanyId
 	//info.BranchId = claims.BranchId
 	//save image
-	file, err := c.FormFile("image")
+	image := c.FormValue("image")
 
-	if file != nil && image_bool == false {
+	if image != "" && image_bool == false {
 		return c.JSON(http.StatusBadRequest, "please change subscription to add visitor image")
 	}
 
-	if file != nil {
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-		src, err := file.Open()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, file.Header)
-		}
-		defer src.Close()
-		//get visitor name for image
+	if image != "" {
 		var visitor = new(model.Visitor)
 		visitor.Id = info.VId
-		res, err := repository.GetVisitor(visitor)
+		resp, err := repository.GetVisitor(visitor)
 		if err != nil {
 			return c.JSON(http.StatusOK, err.Error())
 		}
 
-		uploadedfilename := utils.GenerateFile(res.Name)
+		uploadedfilename := utils.GenerateFile(resp.Name)
 		uploadedfilepath := path.Join("./images", uploadedfilename)
 
-		dst, err := os.Create(uploadedfilepath)
-		defer dst.Close()
+		coI := strings.Index(string(image), ",")
+		rawImage := string(image)[coI+1:]
+		unbased, err := base64.StdEncoding.DecodeString(string(rawImage))
 		if err != nil {
-
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-
-		if _, err = io.Copy(dst, src); err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
+		res := bytes.NewReader(unbased)
+		jpgI, errJpg := jpeg.Decode(res)
+		if errJpg == nil {
+			f, _ = os.OpenFile("images"+"/"+uploadedfilename, os.O_WRONLY|os.O_CREATE, 0777)
+			jpeg.Encode(f, jpgI, &jpeg.Options{Quality: 75})
+			fmt.Println("Jpg created")
+		} else {
+			fmt.Println(errJpg.Error())
 		}
-
 		info.ImagePath = uploadedfilepath
 
 	}
+
+	// if file != nil {
+	// 	if err != nil {
+	// 		return c.JSON(http.StatusBadRequest, err.Error())
+	// 	}
+	// 	src, err := file.Open()
+	// 	if err != nil {
+	// 		return c.JSON(http.StatusInternalServerError, file.Header)
+	// 	}
+	// 	defer src.Close()
+	// 	//get visitor name for image
+	// 	var visitor = new(model.Visitor)
+	// 	visitor.Id = info.VId
+	// 	res, err := repository.GetVisitor(visitor)
+	// 	if err != nil {
+	// 		return c.JSON(http.StatusOK, err.Error())
+	// 	}
+
+	// 	uploadedfilename := utils.GenerateFile(res.Name)
+	// 	uploadedfilepath := path.Join("./images", uploadedfilename)
+
+	// 	dst, err := os.Create(uploadedfilepath)
+	// 	defer dst.Close()
+	// 	if err != nil {
+
+	// 		return c.JSON(http.StatusInternalServerError, err.Error())
+	// 	}
+
+	// 	if _, err = io.Copy(dst, src); err != nil {
+	// 		return c.JSON(http.StatusInternalServerError, err.Error())
+	// 	}
+
+	// 	info.ImagePath = uploadedfilepath
+
+	// }
 
 	// t, _ = time.Parse(shortForm, "2013-Feb-03")
 	// fmt.Println(t)

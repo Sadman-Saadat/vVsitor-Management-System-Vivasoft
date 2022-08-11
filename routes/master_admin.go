@@ -21,6 +21,8 @@ func MasterAdmin(e *echo.Echo) {
 	sub.PATCH("/company/active-status/update", controller.UpdateCompanyStatus)
 	sub.PATCH("/company-admin/reset-password/:id", controller.AdminPasswordChange)
 	sub.PATCH("/change-subscription", controller.ChangeSubscription)
+	sub.PATCH("/package/update/:id", controller.Updatepackage)
+	sub.GET("/dashboard", controller.GetAllAdminData)
 	// sub.PATCH("/change-subscription", controller.ChangeSubscription, middleware.Authenticate)
 	// sub.DELETE("/", controller.CancelSubscription, middleware.Authenticate)
 

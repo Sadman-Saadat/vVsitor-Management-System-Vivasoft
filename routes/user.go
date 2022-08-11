@@ -15,4 +15,5 @@ func User(e *echo.Echo) {
 	sub1.GET("/get-all", controller.GetAllUser, middleware.Authenticate)
 	sub1.GET("/details/:id", controller.GetUserBranchDetails, middleware.Authenticate)
 	sub1.DELETE("/:id", controller.DeleteOfficialUser, middleware.Authenticate)
+	sub1.GET("/dashboard/:id", controller.GetAllData)
 }

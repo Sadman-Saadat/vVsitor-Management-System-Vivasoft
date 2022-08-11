@@ -90,3 +90,25 @@ func ChangeSubscription(sub *types.ChangeSubscription, start time.Time, end time
 	err := db.Model(&model.Company{}).Where("id = ?", sub.CompanyId).Updates(map[string]interface{}{"package_id": sub.PackageId, "subscription_start": start, "status": true, "subscription_end": end}).Error
 	return err
 }
+
+func UpdatePackage(new_pack *model.Package) error {
+	err := db.Save(&new_pack).Error
+	return err
+}
+
+func GetCompanyPerPackage(id int) (int64, error) {
+	var count int64
+	err := db.Model(&model.Company{}).Where("package_id = ?", id).Count(&count).Error
+	return count, err
+}
+
+func GetCompanyCount(data *types.AdminDataCount) (*types.AdminDataCount, error) {
+	var count int64
+	err := db.Model(&model.Company{}).Count(&count).Error
+	data.TotalSubscriber = count
+	err = db.Model(&model.Company{}).Where("status = ?", true).Count(&count).Error
+	data.ActiveSubscriber = count
+	err = db.Model(&model.Company{}).Where("status = ?", false).Count(&count).Error
+	data.InactiveSubscriber = count
+	return data, err
+}

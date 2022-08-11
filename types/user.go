@@ -134,3 +134,26 @@ type ChangeSubscription struct {
 	CompanyId int `json:"company_id" validate:"required"`
 	PackageId int `json:"package_id" validate:"required"`
 }
+
+type DataCount struct {
+	TotalRegisteredVisitor int64 `json:"total_registered_visitor"`
+	TodaysVisitor          int64 `json:"todays_visitor"`
+	LastWeekVisitor        int64 `json:"last_week_visitor"`
+	CurrentMonth           int64 `json:"current_month"`
+	CurrentYear            int64 `json:"current_year"`
+	LastMonthVisitor       int64 `json:"last_month_visitor"`
+	LastYearVisitor        int64 `json:"last_year_visitor"`
+	YesterDayVisitor       int64 `json:"yesterday_visitor"`
+}
+
+type AdminDataCount struct {
+	TotalSubscriber    int64 `json:"total_subscriber"`
+	ActiveSubscriber   int64 `json:"active_subscriber"`
+	InactiveSubscriber int64 `json:"inactive_subscriber"`
+	Package            []*AdmindataPackage
+}
+
+type AdmindataPackage struct {
+	Package_type string `json:"package_type"`
+	Count        int64  `json:"count"`
+}

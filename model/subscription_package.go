@@ -7,6 +7,6 @@ import (
 
 type Package struct {
 	Id                int    `gorm:"primary_key;AUTO_INCREMENT"`
-	Subscription_type string `json:"subscription_type" validate:"required,eq=free|eq=silver|eq=premium|eq=cancel"`
+	Subscription_type string `json:"subscription_type" validate:"required"`
 	Duration          int
 }

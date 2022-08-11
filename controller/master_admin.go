@@ -62,7 +62,7 @@ func MasterLogin(c echo.Context) error {
 	if err != nil || res.Email == "" {
 		return c.JSON(http.StatusUnauthorized, "not a master admin")
 	}
-	token, refresh_token, err := token.GenerateUserTokens(res.Email, res.Id, res.UserType, 0, 0, "", res.Name)
+	token, refresh_token, err := token.GenerateUserTokens(res.Email, res.Id, res.UserType, 0, 0, "", res.Name, "")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -304,4 +304,58 @@ func ChangeSubscription(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "subscription updated")
+}
+
+func Updatepackage(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	var pack = new(types.PackageDetails)
+	var new_package = new(model.Package)
+	if err := c.Bind(pack); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	new_package.Id = id
+	new_package.Subscription_type = pack.PackageType
+	days, _ := strconv.Atoi(pack.Days)
+	duration := days * 24
+	new_package.Duration = duration
+
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil || claims.UserType != "Master Admin" {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	if err := repository.UpdatePackage(new_package); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "updated package")
+}
+
+func GetAllAdminData(c echo.Context) error {
+	var data = new(types.AdminDataCount)
+	// auth_token := c.Request().Header.Get("Authorization")
+	// split_token := strings.Split(auth_token, "Bearer ")
+	// claims, err := utils.DecodeToken(split_token[1])
+	// if err != nil || claims.UserType != "Master Admin" {
+	// 	return c.JSON(http.StatusUnauthorized, err.Error())
+	// }
+	packagelist, _ := repository.GetPackageList()
+	for _, v := range packagelist {
+		count, err := repository.GetCompanyPerPackage(v.Id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		var p = new(types.AdmindataPackage)
+		p.Package_type = v.Subscription_type
+		p.Count = count
+		data.Package = append(data.Package, p)
+
+	}
+	res, err := repository.GetCompanyCount(data)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, res)
 }

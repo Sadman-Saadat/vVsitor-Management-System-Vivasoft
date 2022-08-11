@@ -5,12 +5,13 @@ import (
 )
 
 type SignedUserDetails struct {
-	Id        int
-	Email     string
-	CompanyId int
-	Name      string
-	UserType  string
-	SubDomain string
-	BranchId  int
+	Id           int
+	Email        string
+	CompanyId    int
+	Name         string
+	UserType     string
+	SubDomain    string
+	BranchId     int
+	Package_type string
 	jwt.StandardClaims
 }

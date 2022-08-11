@@ -66,8 +66,11 @@ func Login(c echo.Context) (err error) {
 	if err := utils.VerifyPassword(user.Password, model_user.Password); err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-
-	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId, model_user.BranchId, model_user.SubDomain, model_user.Name)
+	packagedetails, err := repository.GetPackageById(user_company.Package_Id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	token, refresh_token, err := token.GenerateUserTokens(model_user.Email, model_user.Id, model_user.UserType, model_user.CompanyId, model_user.BranchId, model_user.SubDomain, model_user.Name, packagedetails.Subscription_type)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -343,4 +346,18 @@ func GetUserBranchDetails(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, branch_details)
 
+}
+
+func GetAllData(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	var data = new(types.DataCount)
+	auth_token := c.Request().Header.Get("Authorization")
+	split_token := strings.Split(auth_token, "Bearer ")
+	claims, err := utils.DecodeToken(split_token[1])
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+	}
+
+	res, err := repository.GetData(data, claims.CompanyId, id)
+	return c.JSON(http.StatusOK, res)
 }

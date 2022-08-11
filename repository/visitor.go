@@ -97,7 +97,7 @@ func GetTodaysVisitor(company_id int, branch_id int, startdate time.Time, enddat
 
 	fmt.Println(limit)
 	fmt.Println(offset)
-	dbmodel := db.Model(&model.TrackVisitor{}).Select("track_visitors.*,visitors.name,visitors.email,visitors.phone,visitors.address,visitors.image_name,visitors.image_path,visitors.company_representating").Joins("left join visitors on visitors.id = track_visitors.v_id")
+	dbmodel := db.Model(&model.TrackVisitor{}).Select("track_visitors.*,visitors.name,visitors.email,visitors.phone,visitors.address,visitors.image_name,visitors.company_representating").Joins("left join visitors on visitors.id = track_visitors.v_id")
 	dbmodel = dbmodel.Where("track_visitors.company_id = ? AND track_visitors.branch_id = ? AND track_visitors.date BETWEEN ? AND ?", company_id, branch_id, startdate, enddate)
 	if status != "" {
 		dbmodel = dbmodel.Where("track_visitors.status = ?", status)
@@ -116,29 +116,6 @@ func GetTodaysVisitor(company_id int, branch_id int, startdate time.Time, enddat
 
 	return visitor, count, err
 }
-
-// // val := "Arrived"
-// // t := time.Now()
-// // fmt.Println(t)
-// // //t, err := time.Parse("2020-10-30 24:59:59", today)
-// // // t := time.Date(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second)
-// // t2 := t.Add(time.Hour * time.Duration(24))
-
-// if status != "" {
-// 	if search != "" {
-// 		search += fmt.Sprintf("%s", "%")
-// 		model := db.Raw(sql, startdate, enddate, status, search, search, search).Scan(&visitor)
-// 		err := model.Error
-
-// 		return visitor, err
-// 	}
-// 	model := db.Raw(sql, startdate, enddate, status).Scan(&visitor)
-// 	err := model.Error
-
-// 	return visitor, err
-// }
-// err := db.Raw(sql, startdate, enddate).Scan(&visitor).Error
-// // err := db.Joins("JOIN track_visitors ON track_visitors.v_id = visitors.id AND track_visitors.company_id =?  AND track_visitors.date BETWEEN ? AND ? AND track_visitors.status = ?", id, t, t2, val).Preload("TrackVisitors", "date = ? ", t).Find(&visitor).Error
 
 func GetTrackDetails(c_id int, id int) (model.TrackVisitor, error) {
 	var track model.TrackVisitor
