@@ -8,9 +8,9 @@ import (
 	//"visitor-management-system/types"
 )
 
-func CreateVisitor(visitor *model.Visitor) error {
+func CreateVisitor(visitor *model.Visitor) (*model.Visitor, error) {
 	err := db.Create(&visitor).Error
-	return err
+	return visitor, err
 }
 
 func GetAllVisitor(id int) (int64, error) {
@@ -21,10 +21,10 @@ func GetAllVisitor(id int) (int64, error) {
 	return count, err
 }
 
-func GetAllVisitorSpecific(company_id int, branch_id int, search string, limit int, offset int) (visitor []*model.Visitor, count int64, err error) {
+func GetAllVisitorSpecific(company_id int, search string, limit int, offset int) (visitor []*model.Visitor, count int64, err error) {
 	//search += fmt.Sprintf("%s", "%")
 	dbmodel := db.Model(&model.Visitor{}).Select("*")
-	dbmodel = dbmodel.Where("visitors.company_id = ? AND visitors.branch_id = ?", company_id, branch_id)
+	dbmodel = dbmodel.Where("visitors.company_id = ?", company_id)
 	if search != "" {
 		search += fmt.Sprintf("%s", "%")
 		dbmodel = dbmodel.Where("visitors.email LIKE ? OR visitors.name LIKE ? OR visitors.phone LIKE ?", search, search, search)
@@ -62,11 +62,11 @@ func Search(visitor *model.Visitor, id int, search string) ([]*model.Visitor, er
 	return list, err
 }
 
-func SearchForSpecificBranch(visitor *model.Visitor, company_id int, branch_id int, search string) ([]*model.Visitor, error) {
+func SearchForSpecificBranch(visitor *model.Visitor, company_id int, search string) ([]*model.Visitor, error) {
 	var list []*model.Visitor
 	search = fmt.Sprintf(search)
 	search += fmt.Sprintf("%s", "%")
-	err := db.Where("company_id =? AND branch_id =? AND phone LIKE ? OR name LIKE ? OR email LIKE ?", company_id, branch_id, search, search, search).Find(&list).Error
+	err := db.Where("company_id =? AND phone LIKE ? OR name LIKE ? OR email LIKE ?", company_id, search, search, search).Find(&list).Error
 	return list, err
 
 }
@@ -78,16 +78,15 @@ func CheckIn(info *model.TrackVisitor) error {
 
 func CountPresentVisitor(id int) (int64, error) {
 	var count int64
-	var count2 int64
 	times := time.Now().Local().Format("2006-01-02")
 	const shortForm = "2006-01-02"
 	today, _ := time.Parse(shortForm, times)
 	val := "Arrived"
 	val2 := "left"
 	var visitor []*model.TrackVisitor
-	err := db.Where("status = ? AND date=? AND company_id = ?", val, today, id).Find(&visitor).Count(&count).Error
-	err = db.Where("status = ? AND date=? AND company_id = ?", val2, today, id).Find(&visitor).Count(&count2).Error
-	count = count + count2
+	err := db.Where("(status = ? OR status=?) AND date=? AND company_id = ?", val, val2, today, id).Find(&visitor).Count(&count).Error
+	//err = db.Where("status = ? AND date=? AND company_id = ?", val2, today, id).Find(&visitor).Count(&count2).Error
+
 	return count, err
 }
 
@@ -139,10 +138,10 @@ func CheckOut(id int, c_id int, track model.TrackVisitor) error {
 	return err
 }
 
-func IsVistorRegistered(email string, id int, b_id int) (bool, error) {
+func IsVistorRegistered(email string, id int) (bool, error) {
 	var visitor []*model.Visitor
 	var count int64
-	err := db.Where("email= ? AND company_id = ? AND branch_id = ?", email, id, b_id).Find(&visitor).Count(&count).Error
+	err := db.Where("email= ? AND company_id = ?", email, id).Find(&visitor).Count(&count).Error
 	if count != 0 {
 		return false, err
 	}
@@ -150,10 +149,10 @@ func IsVistorRegistered(email string, id int, b_id int) (bool, error) {
 
 }
 
-func IsPhoneNumberPresent(phone string, id int, b_id int) (bool, error) {
+func IsPhoneNumberPresent(phone string, id int) (bool, error) {
 	var visitor []*model.Visitor
 	var count int64
-	err := db.Where("phone= ? AND company_id = ? AND branch_id = ?", phone, id, b_id).Find(&visitor).Count(&count).Error
+	err := db.Where("phone= ? AND company_id = ?", phone, id).Find(&visitor).Count(&count).Error
 	if count != 0 {
 		return false, err
 	}

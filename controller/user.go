@@ -54,6 +54,7 @@ func Login(c echo.Context) (err error) {
 	if model_user.Email == "" || err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
+	fmt.Println(model_user)
 
 	user_company, err := repository.GetCompanyById(model_user.CompanyId)
 	if err != nil {
@@ -64,7 +65,7 @@ func Login(c echo.Context) (err error) {
 	}
 
 	if err := utils.VerifyPassword(user.Password, model_user.Password); err != nil {
-		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
+		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 	packagedetails, err := repository.GetPackageById(user_company.Package_Id)
 	if err != nil {
@@ -136,20 +137,11 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	// res, err := repository.GetBranchDetails(claims.CompanyId, new_user.BranchId)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, err.Error())
-	// }
-
-	//user.BranchId = new_user.BranchId
-	//user.Branch.BranchName = res.BranchName
 	user.Name = new_user.Name
 	user.Email = new_user.Email
 	user.Password = new_user.Password
 	user.UserType = "Official"
 	user.SubDomain = claims.SubDomain
-	//fmt.Println(user.SubDomain)
-	//user.Branch.Address = res.Address
 	user.CompanyId = claims.CompanyId
 	password, err := utils.GenerateRandomPassword()
 	if err != nil {
@@ -188,11 +180,11 @@ func CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "need admin access")
 	}
 
-	if err := utils.SendEmail(user.Email, password, user.SubDomain); err != nil {
+	if err := utils.SendEmail(user.Email, password, user.SubDomain, "", ""); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, "User Created Successfully")
 }
 
 // swagger:route GET /user/get-all USER AllUser
@@ -272,7 +264,7 @@ func DeleteOfficialUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "delete successful")
+	return c.JSON(http.StatusOK, " User deleted Successfully")
 }
 
 // swagger:route POST /user/change-password USER ChangePassword
@@ -320,8 +312,10 @@ func ChangePassword(c echo.Context) error {
 		if err := repository.UpdateUser(user); err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
+	} else {
+		return c.JSON(http.StatusUnauthorized, "Password And Confirm Password Didn't Match")
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, "Password Changed Successfully")
 }
 
 func GetUserBranchDetails(c echo.Context) error {

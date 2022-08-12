@@ -157,3 +157,8 @@ type AdmindataPackage struct {
 	Package_type string `json:"package_type"`
 	Count        int64  `json:"count"`
 }
+
+type VisitorRegistration struct {
+	Message string
+	Item    *model.Visitor
+}

@@ -15,7 +15,13 @@ type Company struct {
 	Status             bool
 	Subscription_Start time.Time
 	Subscription_End   time.Time
-	Package_Id         int `json:"package_id" validate:"required"`
+	Package_Id         int    `json:"package_id" validate:"required"`
+	CompanySize        string `json:"company_size" validate:"required"`
+	CompanyType        string `json:"company_type" validate:"required"`
+	FaxNumber          string `json:"fax_no"`
+	TotalBranchNumber  int    `json:"no_of_branch" validate:"required"`
+	ContactNumber      string `json:"contact_num" validate:"required"`
+
 	// Subscription    Subscription `gorm:"foreignKey:CompanyId;references:Id"`
 	// User            []User       `gorm:"ForeignKey:CompanyId;references:Id"`
 

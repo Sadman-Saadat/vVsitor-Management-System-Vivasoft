@@ -1,12 +1,15 @@
 package controller
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	// "strings"
+	"strconv"
+	"strings"
 	"time"
+	"visitor-management-system/config"
+	"visitor-management-system/types"
 	// "visitor-management-system/const"
 	"visitor-management-system/model"
 	"visitor-management-system/repository"
@@ -48,7 +51,7 @@ func Registration(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	company.SubDomain = company.CompanyName[0:4]
+	company.SubDomain = strings.ToLower(company.CompanyName[0:4])
 	//validate info
 	if validationerr := validate.Struct(company); validationerr != nil {
 		return c.JSON(http.StatusInternalServerError, validationerr.Error())
@@ -62,7 +65,7 @@ func Registration(c echo.Context) error {
 	if res_com != 0 {
 		return c.JSON(http.StatusInternalServerError, "company name or subdomain already exists")
 	}
-	company.Status = true
+	company.Status = false
 
 	pack, err := repository.GetPackageById(company.Package_Id)
 	if err != nil {
@@ -86,15 +89,15 @@ func Registration(c echo.Context) error {
 	}
 	//randrom password generator
 
-	password, err := utils.GenerateRandomPassword()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// password, err := utils.GenerateRandomPassword()
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
 
-	admin.Password, err = utils.Encrypt(password)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	// admin.Password, err = utils.Encrypt(password)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, err.Error())
+	// }
 	//create subscriber
 	admin.CompanyId = res.Id
 	admin.Name = company.SubscriberName
@@ -118,13 +121,14 @@ func Registration(c echo.Context) error {
 	if err := repository.CreateNewUserBranchRelation(relation); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	full_link := fmt.Sprintf("%s%s", config.GetConfig().Link, utils.EncryptString([]byte("example key 1234"), strconv.Itoa(admin_user.Id)))
 
 	//confirmation mail
-	if err := utils.SendEmail(admin.Email, password, admin.SubDomain); err != nil {
+	if err := utils.SendEmail(admin.Email, "", admin.SubDomain, full_link, company.CompanyName); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, admin)
+	return c.JSON(http.StatusCreated, "Registration successful")
 }
 
 func GetAllSubscriber(c echo.Context) error {
@@ -203,3 +207,32 @@ func GetAllSubscriber(c echo.Context) error {
 
 // 	return c.JSON(http.StatusOK, subscription)
 // }
+
+func SetAdminPassword(c echo.Context) error {
+	var password = new(types.Password)
+	if err := c.Bind(password); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	id := c.QueryParam("token")
+	decoded_token := utils.DecryptString([]byte("example key 1234"), id)
+	val, _ := strconv.Atoi(decoded_token)
+	fmt.Println(password.Password)
+	encrypted_password, err := utils.Encrypt(password.Password)
+	fmt.Println(encrypted_password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "failed to encrypt")
+	}
+	if password.Password == password.ConfirmPassword {
+		admin, err := repository.SetAdminPassword(val, encrypted_password)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "failed to update user")
+		}
+		if err := repository.SetCompanyStatus(admin.CompanyId); err != nil {
+			return c.JSON(http.StatusInternalServerError, "failed to set Company Status")
+		}
+		return c.JSON(http.StatusOK, "Verification Successful")
+	}
+
+	return c.JSON(http.StatusOK, "Verification not Successful")
+}

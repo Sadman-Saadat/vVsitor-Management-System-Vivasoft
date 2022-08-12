@@ -3,6 +3,7 @@ package repository
 import (
 	"visitor-management-system/database"
 	"visitor-management-system/model"
+	//"visitor-management-system/types"
 )
 
 var db = database.GetDB()
@@ -22,18 +23,6 @@ func UpdateUser(user *model.User) error {
 	return err
 }
 
-// func CancelSubscription(sub *model.Subscription) error {
-// 	err := db.Model(&sub).Where("company_id = ?", sub.CompanyId).Update("subscription_type", "free").Error
-// 	return err
-// }
-
-// func GetPreviousSubscription(id int) (model.Subscription, error) {
-// 	var subscription model.Subscription
-// 	err := db.Where("company_id = ?", id).Find(&subscription).Error
-
-// 	return subscription, err
-// }
-
 func IsCompanyValid(name string, subdomain string) (int64, error) {
 	var existing_company []*model.Company
 	var count int64
@@ -45,4 +34,15 @@ func GetPackageById(id int) (*model.Package, error) {
 	var pack *model.Package
 	err := db.Model(&model.Package{}).Where("id=?", id).Find(&pack).Error
 	return pack, err
+}
+
+func SetAdminPassword(id int, password string) (*model.User, error) {
+	var user *model.User
+	err := db.Model(&model.User{}).Where("id =?", id).Update("password", password).Find(&user).Error
+	return user, err
+}
+
+func SetCompanyStatus(id int) error {
+	err := db.Model(&model.Company{}).Where("id=?", id).Update("status", true).Error
+	return err
 }

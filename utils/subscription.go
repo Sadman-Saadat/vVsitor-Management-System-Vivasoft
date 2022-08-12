@@ -15,6 +15,7 @@ func ValidateSubscription(id int) (bool, string, error, bool) {
 		return false, "", err, false
 	}
 
+	fmt.Println("company")
 	fmt.Println(res)
 	if res.Status != true {
 		return false, "you are restricted plz contact vivasoft", err, false
@@ -29,9 +30,11 @@ func ValidateSubscription(id int) (bool, string, error, bool) {
 	if err != nil {
 		return false, "", err, features.Image
 	}
+	fmt.Println("featurs")
 	fmt.Println(features)
 
 	count, err := repository.CountPresentVisitor(id)
+	fmt.Println("present")
 	fmt.Println(count)
 	if err != nil {
 		return false, "", err, features.Image
@@ -41,6 +44,7 @@ func ValidateSubscription(id int) (bool, string, error, bool) {
 	}
 
 	total_count, err := repository.GetAllVisitor(id)
+	fmt.Println("total visitor")
 	fmt.Println(total_count)
 	if err != nil {
 		return false, "", err, features.Image

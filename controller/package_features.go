@@ -27,11 +27,11 @@ func CreatePackageFeatures(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "not authorized")
 	}
 
-	resp, err := repository.CreatePackageFeatures(features)
+	_, err = repository.CreatePackageFeatures(features)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, "Package Features Created Successfully")
 }
 
 func GetPackageFeatures(c echo.Context) error {

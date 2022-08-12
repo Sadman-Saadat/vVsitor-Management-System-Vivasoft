@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	//"fmt"
 	//"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -44,10 +44,10 @@ func CreateMasterAdmin(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := utils.SendEmail(resp.Email, password, ""); err != nil {
+	if err := utils.SendEmail(resp.Email, password, "", "", ""); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, "Master Admin Created Successfully")
 }
 
 func MasterLogin(c echo.Context) error {
@@ -94,12 +94,12 @@ func CreatePackage(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "not authorized")
 	}
 
-	res, err := repository.CreatePackage(packages)
+	_, err = repository.CreatePackage(packages)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, "not a master admin")
 	}
 
-	return c.JSON(http.StatusCreated, res)
+	return c.JSON(http.StatusCreated, "Package Created Successfully")
 }
 
 func CompanyList(c echo.Context) error {
@@ -143,15 +143,6 @@ func CompanyList(c echo.Context) error {
 }
 
 func Packagelist(c echo.Context) error {
-	//var pagination = new(types.PaginationGetAllPackage)
-
-	// auth_token := c.Request().Header.Get("Authorization")
-	// split_token := strings.Split(auth_token, "Bearer ")
-	// claims, err := utils.DecodeToken(split_token[1])
-	// if err != nil || claims.UserType != "Master Admin" {
-	// 	return c.JSON(http.StatusUnauthorized, "not authorized")
-	// }
-
 	res, err := repository.GetPackageList()
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, err.Error())
@@ -202,7 +193,7 @@ func DeletePackage(c echo.Context) error {
 	if err1 != nil || err2 != nil {
 		return c.JSON(http.StatusInternalServerError, err1.Error())
 	}
-	return c.JSON(http.StatusOK, "deleted")
+	return c.JSON(http.StatusOK, "Package Successfully Deleted")
 }
 
 func UpdatePackagefeatures(c echo.Context) error {
@@ -224,18 +215,16 @@ func UpdatePackagefeatures(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, "updated")
+	return c.JSON(http.StatusOK, "Package Features Updated Successfully")
 
 }
 
 func UpdateCompanyStatus(c echo.Context) error {
-	// company_id, _ := strconv.Atoi("id")
-	//fmt.Println(company_id)
 	var status = new(types.Status)
 	if err := c.Bind(status); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	fmt.Println(status.Id)
+
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
@@ -246,7 +235,7 @@ func UpdateCompanyStatus(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, "updated company")
+	return c.JSON(http.StatusOK, "Updated Company Status Successfully")
 }
 
 func AdminPasswordChange(c echo.Context) error {
@@ -270,10 +259,10 @@ func AdminPasswordChange(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := utils.SendEmail(admin.Email, password, admin.SubDomain); err != nil {
+	if err := utils.SendEmail(admin.Email, password, admin.SubDomain, "", ""); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, admin)
+	return c.JSON(http.StatusOK, "Admin Password Reset Successful")
 }
 
 func ChangeSubscription(c echo.Context) error {
@@ -303,7 +292,7 @@ func ChangeSubscription(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "subscription updated")
+	return c.JSON(http.StatusOK, "Subscription Change Successful")
 }
 
 func Updatepackage(c echo.Context) error {
@@ -330,17 +319,12 @@ func Updatepackage(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "updated package")
+	return c.JSON(http.StatusOK, "Package Updated Successfully")
 }
 
 func GetAllAdminData(c echo.Context) error {
 	var data = new(types.AdminDataCount)
-	// auth_token := c.Request().Header.Get("Authorization")
-	// split_token := strings.Split(auth_token, "Bearer ")
-	// claims, err := utils.DecodeToken(split_token[1])
-	// if err != nil || claims.UserType != "Master Admin" {
-	// 	return c.JSON(http.StatusUnauthorized, err.Error())
-	// }
+
 	packagelist, _ := repository.GetPackageList()
 	for _, v := range packagelist {
 		count, err := repository.GetCompanyPerPackage(v.Id)

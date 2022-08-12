@@ -44,6 +44,7 @@ import (
 
 func CreateVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
+	var visitor_response = new(types.VisitorRegistration)
 	var f *os.File
 	visitor.Name = c.FormValue("name")
 	visitor.Address = c.FormValue("address")
@@ -68,14 +69,14 @@ func CreateVisitor(c echo.Context) error {
 	fmt.Println(resp)
 	visitor.BranchName = resp.BranchName
 	if visitor.Email != "" {
-		is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId, visitor.BranchId)
+		is_registered, err := repository.IsVistorRegistered(visitor.Email, claims.CompanyId)
 
 		if is_registered != true || err != nil {
 			return c.JSON(http.StatusBadRequest, "visitor email already registered")
 		}
 
 	}
-	valid_phone, err := repository.IsPhoneNumberPresent(visitor.Phone, claims.CompanyId, visitor.BranchId)
+	valid_phone, err := repository.IsPhoneNumberPresent(visitor.Phone, claims.CompanyId)
 	if valid_phone != true || err != nil {
 		return c.JSON(http.StatusBadRequest, "visitor phone already registered")
 	}
@@ -115,10 +116,13 @@ func CreateVisitor(c echo.Context) error {
 		visitor.ImagePath = uploadedfilepath
 
 	}
-	if err := repository.CreateVisitor(visitor); err != nil {
+	v_resp, err := repository.CreateVisitor(visitor)
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, visitor)
+	visitor_response.Message = "Visitor Registration Successful"
+	visitor_response.Item = v_resp
+	return c.JSON(http.StatusOK, visitor_response)
 }
 
 // swagger:route GET /visitor/get-all Visitor Visitors
@@ -148,7 +152,7 @@ func GetAllVisitor(c echo.Context) error {
 	// var visitor = new(model.Visitor)
 	// c.Bind(visitor)
 	var search string
-	branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
+	//branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
 	//var branch_id = new(types.BranchIds)
 	var Pagination = new(types.PaginationGetAllVisitor)
 
@@ -173,7 +177,7 @@ func GetAllVisitor(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
 
-	res, count, err := repository.GetAllVisitorSpecific(claims.CompanyId, branch_id, search, limit, offset)
+	res, count, err := repository.GetAllVisitorSpecific(claims.CompanyId, search, limit, offset)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -181,14 +185,6 @@ func GetAllVisitor(c echo.Context) error {
 	Pagination.Items = res
 
 	return c.JSON(http.StatusOK, Pagination)
-
-	// sql := fmt.Sprintf("SELECT * FROM visitors WHERE visitors.company_id = %d AND visitors.branch_id = %d LIMIT %d OFFSET %d", claims.CompanyId, branch_id, limit, offset)
-	// res, err := repository.GetAllVisitor(sql)
-	// if err != nil {
-	// 	return c.JSON(http.StatusOK, err.Error())
-	// }
-	// Pagination.TotalCount = count
-	// Pagination.Items = res
 
 }
 
@@ -217,9 +213,6 @@ func GetAllVisitor(c echo.Context) error {
 //details
 func GetVisitorDetails(c echo.Context) error {
 	var visitor = new(model.Visitor)
-	// if err := c.Bind(visitor); err != nil {
-	// 	return c.JSON(http.StatusBadRequest, err.Error())
-	// }
 	visitor.Id, _ = strconv.Atoi(c.Param("id"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
@@ -249,7 +242,7 @@ func UpdateVisitor(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, "update successful")
+	return c.JSON(http.StatusOK, "Visitor Updated Successfully")
 }
 
 func GetVisitor(c echo.Context) error {
@@ -289,22 +282,15 @@ func GetVisitor(c echo.Context) error {
 func SearchVisitor(c echo.Context) error {
 	var visitor = new(model.Visitor)
 	search := c.QueryParam("search")
-	branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
+	//branch_id, _ := strconv.Atoi(c.QueryParam("branch_id"))
 	auth_token := c.Request().Header.Get("Authorization")
 	split_token := strings.Split(auth_token, "Bearer ")
 	claims, err := utils.DecodeToken(split_token[1])
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	// if claims.UserType == "Admin" {
-	// 	res, err := repository.Search(visitor, claims.CompanyId, search)
-	// 	if err != nil {
-	// 		return c.JSON(http.StatusInternalServerError, err.Error())
-	// 	}
-	// 	return c.JSON(http.StatusOK, res)
-	// }
-	//fmt.Println(branch_id)
-	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, branch_id, search)
+
+	res, err := repository.SearchForSpecificBranch(visitor, claims.CompanyId, search)
 	if err != nil {
 		return c.JSON(http.StatusOK, err.Error())
 	}
@@ -400,43 +386,6 @@ func CheckIn(c echo.Context) error {
 
 	}
 
-	// if file != nil {
-	// 	if err != nil {
-	// 		return c.JSON(http.StatusBadRequest, err.Error())
-	// 	}
-	// 	src, err := file.Open()
-	// 	if err != nil {
-	// 		return c.JSON(http.StatusInternalServerError, file.Header)
-	// 	}
-	// 	defer src.Close()
-	// 	//get visitor name for image
-	// 	var visitor = new(model.Visitor)
-	// 	visitor.Id = info.VId
-	// 	res, err := repository.GetVisitor(visitor)
-	// 	if err != nil {
-	// 		return c.JSON(http.StatusOK, err.Error())
-	// 	}
-
-	// 	uploadedfilename := utils.GenerateFile(res.Name)
-	// 	uploadedfilepath := path.Join("./images", uploadedfilename)
-
-	// 	dst, err := os.Create(uploadedfilepath)
-	// 	defer dst.Close()
-	// 	if err != nil {
-
-	// 		return c.JSON(http.StatusInternalServerError, err.Error())
-	// 	}
-
-	// 	if _, err = io.Copy(dst, src); err != nil {
-	// 		return c.JSON(http.StatusInternalServerError, err.Error())
-	// 	}
-
-	// 	info.ImagePath = uploadedfilepath
-
-	// }
-
-	// t, _ = time.Parse(shortForm, "2013-Feb-03")
-	// fmt.Println(t)
 	times := time.Now().Local().Format("2006-01-02")
 
 	const shortForm = "2006-01-02"
@@ -454,7 +403,7 @@ func CheckIn(c echo.Context) error {
 	if err := repository.CheckIn(info); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, info)
+	return c.JSON(http.StatusOK, "Visitor Checkin Successful")
 }
 
 // swagger:route GET /visitor/log Visitor TodaysVisitor
@@ -485,12 +434,6 @@ func GetTodaysVisitor(c echo.Context) error {
 	var order, status, search string
 	var branch_id int
 	var frequent bool
-	// var frequent bool
-	// if c.QueryParam("frequent") == "" {
-	// 	frequent = false
-	// } else {
-	// 	frequent, _ = strconv.ParseBool(c.QueryParam("frequent"))
-	// }
 
 	const shortForm = "2006-01-02"
 	if c.QueryParam("start_date") != "" && c.QueryParam("end_date") != "" && c.QueryParam("order") != "" || c.QueryParam("status") != "" || c.QueryParam("branch_id") != "" || c.QueryParam("search") != "" || c.QueryParam("frequent") != "" {
@@ -532,36 +475,8 @@ func GetTodaysVisitor(c echo.Context) error {
 	pagination.Items = res
 	pagination.TotalCount = count
 
-	//Pagination.Items = res
 	return c.JSON(http.StatusOK, pagination)
 }
-
-/*	if frequent == true {
-		sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ?", join_sql, claims.CompanyId, branch_id)
-		sql = fmt.Sprintf("%s GROUP BY track_visitors.v_id ORDER BY count DESC", sql)
-		res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-		Pagination.Record = res
-		return c.JSON(http.StatusOK, Pagination)
-	}
-
-	if claims.UserType == "Admin" {
-		sql := fmt.Sprintf("%s WHERE track_visitors.company_id = %d AND track_visitors.branch_id = %d AND track_visitors.date BETWEEN ? AND ?", join_sql, claims.CompanyId, branch_id)
-		if status != "" {
-			sql = fmt.Sprintf("%s AND track_visitors.status = ?", sql)
-		}
-		sql = fmt.Sprintf("%s ORDER BY track_visitors.id %s LIMIT %d OFFSET %d", sql, order, limit, offset)
-		res, err := repository.GetTodaysVisitor(sql, start_date, end_date, status)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-
-		Pagination.Record = res
-
-		return c.JSON(http.StatusOK, Pagination)
-	}*/
 
 // swagger:route POST /visitor/checkout/:id Visitor checkout
 //checkout
@@ -595,11 +510,6 @@ func CheckOut(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, consts.UnAuthorized)
 	}
-	// //record.VId = visitor.Id
-	// res, err := repository.GetVisitor(visitor)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, "failed fetch visitor")
-	// }
 
 	track_res, err := repository.GetTrackDetails(claims.CompanyId, id)
 	if err != nil {
@@ -612,9 +522,5 @@ func CheckOut(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "failed")
 	}
 
-	// if err := repository.CreateRecord(record); err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, "failed insert db")
-	// }
-
-	return c.JSON(http.StatusOK, "checkout successful")
+	return c.JSON(http.StatusOK, "Visitor Checkout Successful")
 }
