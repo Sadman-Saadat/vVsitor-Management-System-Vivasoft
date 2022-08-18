@@ -1,31 +1,31 @@
-version: "3.9" # optional since v1.27.0
+version: "3.3" # optional since v1.27.0
 services:
   server:
     container_name: Vms-server
     build: .
     ports:
       - 8080:8080
-    links:
-      - mysql
+    # links:
+    #   - mysql
     volumes:
       - my_data:/app/images
    
-  mysql:
-    container_name: Vms-mysql
-    hostname: mysql
-    image: mysql
-    environment:
-          MYSQL_ROOT_PASSWORD: 12345
-          MYSQL_DATABASE: mytestdb
-          MYSQL_USER: nafiul
-          MYSQL_PASSWORD: quddus1916
-    ports:
-      - 3306:3306
-    volumes:
-      - db_data:/var/lib/mysql
+  # mysql:
+  #   container_name: Vms-mysql
+  #   hostname: mysql
+  #   image: mysql
+  #   environment:
+  #         MYSQL_ROOT_PASSWORD: 12345
+  #         MYSQL_DATABASE: mytestdb
+  #         MYSQL_USER: nafiul
+  #         MYSQL_PASSWORD: quddus1916
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - db_data:/var/lib/mysql
 
 
 volumes:
   my_data:
-  db_data:
+# db_data:
 
