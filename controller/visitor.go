@@ -107,7 +107,7 @@ func CreateVisitor(c echo.Context) error {
 		jpgI, errJpg := jpeg.Decode(res)
 		if errJpg == nil {
 			f, _ = os.OpenFile("images"+"/"+uploadedfilename, os.O_WRONLY|os.O_CREATE, 0777)
-			jpeg.Encode(f, jpgI, &jpeg.Options{Quality: 75})
+			jpeg.Encode(f, jpgI, &jpeg.Options{Quality: 100})
 			fmt.Println("Jpg created")
 		} else {
 			fmt.Println(errJpg.Error())
