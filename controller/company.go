@@ -236,3 +236,7 @@ func SetAdminPassword(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, "Verification not Successful")
 }
+
+func Health(c echo.Context) error {
+	return c.JSON(http.StatusOK, "healthy")
+}
