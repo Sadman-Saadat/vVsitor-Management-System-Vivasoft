@@ -39,7 +39,7 @@ func ValidateSubscription(id int) (bool, string, error, bool) {
 	if err != nil {
 		return false, "", err, features.Image
 	}
-	if int(count) > features.VisitorCountPerDay {
+	if int(count) >= features.VisitorCountPerDay {
 		return false, "per day count limit exceeded", err, features.Image
 	}
 
@@ -49,7 +49,7 @@ func ValidateSubscription(id int) (bool, string, error, bool) {
 	if err != nil {
 		return false, "", err, features.Image
 	}
-	if int(total_count) > features.MaxRegistredVisitorCount {
+	if int(total_count) >= features.MaxRegistredVisitorCount {
 		return false, "max limit exceeded", err, features.Image
 	}
 
