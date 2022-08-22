@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"image/jpeg"
+	"visitor-management-system/config"
 	//"io"
 	"net/http"
 	"os"
@@ -95,7 +96,7 @@ func CreateVisitor(c echo.Context) error {
 	if image != "" {
 
 		uploadedfilename := utils.GenerateFile(visitor.Name)
-		uploadedfilepath := path.Join("./images", uploadedfilename)
+		uploadedfilepath := path.Join("images", uploadedfilename)
 
 		coI := strings.Index(string(image), ",")
 		rawImage := string(image)[coI+1:]
@@ -113,7 +114,7 @@ func CreateVisitor(c echo.Context) error {
 			fmt.Println(errJpg.Error())
 		}
 		visitor.ImageName = uploadedfilename
-		visitor.ImagePath = uploadedfilepath
+		visitor.ImagePath = fmt.Sprintf("%s%s", config.GetConfig().ImageBaseUri, uploadedfilepath)
 
 	}
 	v_resp, err := repository.CreateVisitor(visitor)
@@ -365,7 +366,7 @@ func CheckIn(c echo.Context) error {
 		}
 
 		uploadedfilename := utils.GenerateFile(resp.Name)
-		uploadedfilepath := path.Join("./images", uploadedfilename)
+		uploadedfilepath := path.Join("images", uploadedfilename)
 
 		coI := strings.Index(string(image), ",")
 		rawImage := string(image)[coI+1:]
@@ -382,7 +383,7 @@ func CheckIn(c echo.Context) error {
 		} else {
 			fmt.Println(errJpg.Error())
 		}
-		info.ImagePath = uploadedfilepath
+		info.ImagePath = fmt.Sprintf("%s%s", config.GetConfig().ImageBaseUri, uploadedfilepath)
 
 	}
 
@@ -523,4 +524,9 @@ func CheckOut(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Visitor Checkout Successful")
+}
+
+func GetImageByPath(c echo.Context) error {
+	path := c.QueryParam("path")
+	return c.File(path)
 }
