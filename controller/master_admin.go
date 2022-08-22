@@ -62,6 +62,10 @@ func MasterLogin(c echo.Context) error {
 	if err != nil || res.Email == "" {
 		return c.JSON(http.StatusUnauthorized, "not a master admin")
 	}
+
+	if err := utils.VerifyPassword(credentials.Password, res.Password); err != nil {
+		return c.JSON(http.StatusUnauthorized, "password not matched")
+	}
 	token, refresh_token, err := token.GenerateUserTokens(res.Email, res.Id, res.UserType, 0, 0, "", res.Name, "")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
