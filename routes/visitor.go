@@ -18,5 +18,6 @@ func Visitor(e *echo.Echo) {
 	sub.POST("/checkin", controller.CheckIn)
 	sub.GET("/log", controller.GetTodaysVisitor)
 	sub.POST("/check-out/:id", controller.CheckOut)
+	sub.GET("/get-image-by-path", controller.GetImageByPath)
 
 }
