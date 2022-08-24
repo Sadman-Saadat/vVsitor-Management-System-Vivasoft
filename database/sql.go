@@ -32,7 +32,7 @@ var db *gorm.DB
 func Connect() {
 	//logMode := gormlogger.Info
 
-	database, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{
+	database, err := gorm.Open(sqlite.Open("/app/gorm/gorm.db"), &gorm.Config{
 		//PrepareStmt: true,
 		//Logger:      gormlogger.Default.LogMode(logMode),
 	})
