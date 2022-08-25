@@ -41,6 +41,8 @@ func Execute() {
 		os.Exit(1)
 	}
 	e := echo.New()
+	database.GetDB()
+	database.Migration()
 
 	database.GetDB()
 	database.Migration()
@@ -49,6 +51,9 @@ func Execute() {
 	routes.Company(e)
 	routes.User(e)
 	routes.Visitor(e)
+	routes.Branch(e)
+	routes.Settings(e)
+	routes.MasterAdmin(e)
 
 	dg := e.Group("docs")
 	dg.GET("/swagger", echo.WrapHandler(middleware.SwaggerDocs()))

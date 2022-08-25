@@ -42,7 +42,11 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+<<<<<<< HEAD
 	github.com/mattn/go-sqlite3 v1.14.14 // indirect
+=======
+	github.com/mattn/go-sqlite3 v1.14.12 // indirect
+>>>>>>> dad55e8260aedf1d4ad7f78775d3ad4da2c70dee
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -63,4 +67,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlite v1.3.6 // indirect
+<<<<<<< HEAD
+=======
+	gorm.io/gorm v1.23.8 // indirect
+>>>>>>> dad55e8260aedf1d4ad7f78775d3ad4da2c70dee
 )

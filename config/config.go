@@ -15,6 +15,8 @@ type Config struct {
 	SmtpHost     string `mapstructure:"SMTP_HOST"`
 	SmtpPort     string `mapstructure:"SMTP_PORT"`
 	SmtpPassword string `mapstructure:"SMTP_PASSWORD"`
+	Link         string `mapstructure:"LINK"`
+	ImageBaseUri string `mapstructure:"IMAGE_BASE_URI"`
 }
 
 func init_config() (config Config, err error) {

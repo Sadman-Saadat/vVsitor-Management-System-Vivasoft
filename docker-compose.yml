@@ -7,7 +7,9 @@ services:
       - 8080:8080
     volumes:
       - my_data:/app/images
+      - sqlite_data:/app/gorm
    
+<<<<<<< HEAD
   # mysql:
   #   container_name: Vms-mysql
   #   hostname: mysql
@@ -21,8 +23,14 @@ services:
   #     - 3306:3306
   #   volumes:
   #     - db_data:/var/lib/mysql
+=======
+>>>>>>> dad55e8260aedf1d4ad7f78775d3ad4da2c70dee
 
 
 volumes:
   my_data:
+<<<<<<< HEAD
+=======
+  sqlite_data:
+>>>>>>> dad55e8260aedf1d4ad7f78775d3ad4da2c70dee
 
